@@ -137,12 +137,16 @@ public class Deque<Item> implements Iterable<Item> {
     test.addLast(2);
     test.addLast(3);
     test.addFirst(0);
-    StdOut.print(test.removeLast());
-    StdOut.print(test.removeLast());
-    StdOut.print(test.removeLast());
-    StdOut.print(test.removeLast());
-    StdOut.print(test.isEmpty());
-    StdOut.print(test.size());
+    Iterator<Integer> IT = test.iterator();
+    test.addFirst(-1);
+    while(IT.hasNext()) StdOut.print(IT.next());
+    for (int x : test) StdOut.print(x);
+//    StdOut.print(test.removeLast());
+//    StdOut.print(test.removeLast());
+//    StdOut.print(test.removeLast());
+//    StdOut.print(test.removeLast());
+//    StdOut.print(test.isEmpty());
+//    StdOut.print(test.size());
   }
 
 }
