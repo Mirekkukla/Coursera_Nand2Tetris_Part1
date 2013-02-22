@@ -1,5 +1,8 @@
 import java.util.Iterator;
 
+import com.javamex.classmexer.MemoryUtil;
+
+
 /**
  * A randomized queue. Elements can be added and removed in constant ammortized time.
  * The element to be returned is selected uniformly at random.
@@ -19,13 +22,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
    */
 
   private Item[] array;
-  private Deque<Integer> emptyIndices;
+  private Stack<Integer> emptyIndices;
   private int N;
 
   // construct an empty randomized queue
   public RandomizedQueue() {
     N = 0;
-    emptyIndices = new Deque<Integer>();
+    emptyIndices = new Stack<Integer>();
   }
 
   // is the queue empty?
@@ -47,12 +50,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (i < oldSize) { newArray[i] = array[i]; }// copy old
         else if (i == oldSize) { newArray[i] = item; }// insert new
         else {
-          emptyIndices.addLast(i); // mark the rest as empty
+          newArray[i] = null;
+          emptyIndices.push(i); // mark the rest as empty
         }
       }
       array = newArray;
     } else {
-      int emptyIndex = emptyIndices.removeFirst();
+      int emptyIndex = emptyIndices.pop();
       array[emptyIndex] = item;
     }
     N++;
@@ -64,7 +68,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     int indexToRemove = findIndexOfRand();
     Item ret = array[indexToRemove];
     array[indexToRemove] = null;
-    emptyIndices.addLast(indexToRemove);
+    emptyIndices.push(indexToRemove);
     N--;
 
     if (N <= array.length / 4) {
@@ -76,9 +80,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
           i++;
         }
       }
-      assert(i == newArray.length / 4);
+      assert(i == newArray.length);
       array = newArray; //the array should be full...
-      emptyIndices = new Deque<Integer>(); //...so reset empty indices
+      emptyIndices = new Stack<Integer>(); //...so reset empty indices
     }
     return ret;
   }
@@ -142,31 +146,36 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
   }
 
-//  public static void main(String args[]) {
-//    RandomizedQueue<Integer> Q = new RandomizedQueue<Integer>();
-//    for (int i = 0; i < 100; i++) {
-//      Q.enqueue(i);
-//      if (i%2 == 0) {
-//        int x = Q.dequeue();
-//      }
-//    }
-//    for (int x : Q) {
-//      StdOut.print(x + " ");
-//    }
-//    StdOut.println("");
-//
-//    for (int x : Q) {
-//      StdOut.print(x + " ");
-//    }
-//    StdOut.println("");
-//
-//    int sum = 0;
-//    for (int i = 0; i < Q.size(); i++) {
-//      int x = Q.dequeue();
-//      StdOut.print(x + " ");
-//      sum += x;
-//    }
-//    StdOut.print(" sum is " + sum);
-//  }
+  public static void main(String args[]) {
+    RandomizedQueue<String> Q = new RandomizedQueue<String>();
+    for (Integer i = 1; i < 20; i++) {
+      Q.enqueue(Integer.toString(i));
+    }
+    for (Integer i = 1; i < 10; i++) {
+      String s = Q.dequeue();
+    }
+    long noBytes = MemoryUtil.deepMemoryUsageOf(Q);
 
+//    Integer a = new Integer(123456);
+//    StdOut.println("size of integer = " + MemoryUtil.memoryUsageOf(a) + " bytes");
+
+//    StdOut.println(noBytes);
+//
+//    for (String x : Q) {
+//      StdOut.print(x + " ");
+//    }
+//    StdOut.println("");
+//
+//    int max = Q.size();
+//    for (int i = 0; i < max/2; i++) {
+//      String x = Q.dequeue();
+//      StdOut.print(x + " ");
+//    }
+//
+//    StdOut.println("");
+//
+//    for (String x : Q) {
+//      StdOut.print(x + " ");
+//    }
+  }
 }
