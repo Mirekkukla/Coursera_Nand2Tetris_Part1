@@ -55,7 +55,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   // return (but do not delete) a random item
   public Item sample() {
     if (isEmpty()) throw new java.util.NoSuchElementException();
-    return array[N-1];
+    return array[StdRandom.uniform(0,N)];
   }
 
   private void resize(int capacity) {
