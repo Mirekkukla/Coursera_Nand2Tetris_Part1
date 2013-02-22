@@ -1,8 +1,5 @@
 import java.util.Iterator;
 
-import com.javamex.classmexer.MemoryUtil;
-
-
 /**
  * A randomized queue. Elements can be added and removed in constant ammortized time.
  * The element to be returned is selected uniformly at random.
@@ -22,13 +19,12 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
    */
 
   private Item[] array;
-  private Stack<Integer> emptyIndices;
   private int N;
 
   // construct an empty randomized queue
   public RandomizedQueue() {
+    array = (Item[]) new Object[2];
     N = 0;
-    emptyIndices = new Stack<Integer>();
   }
 
   // is the queue empty?
@@ -40,68 +36,42 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
   // add the item
   public void enqueue(Item item) {
     if (item == null) throw new java.lang.NullPointerException();
-    if (N == 0) {
-      array = (Item[]) new Object[1];
-      array[0] = item;
-    } else if (emptyIndices.isEmpty()) {
-      int oldSize = array.length;
-      Item[] newArray = (Item[]) new Object[oldSize * 2];
-      for (int i = 0; i < newArray.length; i++) {
-        if (i < oldSize) { newArray[i] = array[i]; }// copy old
-        else if (i == oldSize) { newArray[i] = item; }// insert new
-        else {
-          newArray[i] = null;
-          emptyIndices.push(i); // mark the rest as empty
-        }
-      }
-      array = newArray;
-    } else {
-      int emptyIndex = emptyIndices.pop();
-      array[emptyIndex] = item;
-    }
+    if (N == array.length) resize(2*array.length);
+    array[N] = item;
+    swap(N, StdRandom.uniform(0,N+1));
     N++;
   }
 
   // delete and return a random item
   public Item dequeue() {
-    if (N == 0) throw new java.util.NoSuchElementException();
-    int indexToRemove = findIndexOfRand();
-    Item ret = array[indexToRemove];
-    array[indexToRemove] = null;
-    emptyIndices.push(indexToRemove);
+    if (isEmpty()) throw new java.util.NoSuchElementException();
+    Item ret = array[N-1];
+    array[N-1] = null;
     N--;
-
-    if (N <= array.length / 4) {
-      Item[] newArray = (Item[]) new Object[array.length / 4];
-      int i = 0;
-      for (Item item : array) {
-        if (item != null) {
-          newArray[i] = item;
-          i++;
-        }
-      }
-      assert(i == newArray.length);
-      array = newArray; //the array should be full...
-      emptyIndices = new Stack<Integer>(); //...so reset empty indices
-    }
+    if (N > 0 && N == array.length/4) resize(array.length/2);
     return ret;
   }
 
   // return (but do not delete) a random item
   public Item sample() {
-    if (N == 0) throw new java.util.NoSuchElementException();
-    return array[findIndexOfRand()];
+    if (isEmpty()) throw new java.util.NoSuchElementException();
+    return array[N-1];
   }
 
-  private int findIndexOfRand() {
-    while (true) {
-      int randInt = StdRandom.uniform(array.length);
-      if (array[randInt] != null) {
-        return randInt;
-      }
+  private void resize(int capacity) {
+    assert capacity >= N;
+    Item[] temp = (Item[]) new Object[capacity];
+    for (int i = 0; i < N; i++) {
+      temp[i] = array[i];
     }
+    array = temp;
   }
 
+  private void swap(int a, int b) {
+    Item temp = array[a];
+    array[a] = array[b];
+    array[b] = temp;
+  }
 
   // return an independent iterator over items in random order
   @Override
@@ -115,12 +85,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     public RandIterator() {
       int i = 0;
-      //get indices of all items
-      for (int j = 0; j < array.length; j++) {
-        if (array[j] != null) {
-          indexArray[i] = j;
-          i++;
-        }
+      // get indices of all items
+      for (int j = 0; j < N; j++) {
+        indexArray[i] = j;
+        i++;
       }
 
       StdRandom.shuffle(indexArray);
@@ -148,34 +116,28 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
   public static void main(String args[]) {
     RandomizedQueue<String> Q = new RandomizedQueue<String>();
-    for (Integer i = 1; i < 20; i++) {
-      Q.enqueue(Integer.toString(i));
-    }
-    for (Integer i = 1; i < 10; i++) {
-      String s = Q.dequeue();
-    }
-    long noBytes = MemoryUtil.deepMemoryUsageOf(Q);
+     for (Integer i = 1; i < 200; i++) {
+     Q.enqueue(Integer.toString(i));
+     }
+     for (Integer i = 1; i < 190; i++) {
+     String s = Q.dequeue();
+     }
 
-//    Integer a = new Integer(123456);
-//    StdOut.println("size of integer = " + MemoryUtil.memoryUsageOf(a) + " bytes");
+    for (String x : Q) {
+      StdOut.print(x + " ");
+    }
+    StdOut.println("");
 
-//    StdOut.println(noBytes);
-//
-//    for (String x : Q) {
-//      StdOut.print(x + " ");
-//    }
-//    StdOut.println("");
-//
-//    int max = Q.size();
-//    for (int i = 0; i < max/2; i++) {
-//      String x = Q.dequeue();
-//      StdOut.print(x + " ");
-//    }
-//
-//    StdOut.println("");
-//
-//    for (String x : Q) {
-//      StdOut.print(x + " ");
-//    }
+    int max = Q.size();
+    for (int i = 0; i < max/2; i++) {
+      String x = Q.dequeue();
+      StdOut.print(x + " ");
+    }
+
+    StdOut.println("");
+
+    for (String x : Q) {
+      StdOut.print(x + " ");
+    }
   }
 }
