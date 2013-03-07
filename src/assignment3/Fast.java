@@ -42,31 +42,33 @@ public class Fast {
 
       Arrays.sort(copyArr, origin.SLOPE_ORDER);
       double lastSlope = Double.NEGATIVE_INFINITY; //slope of point with itself
-      int count = 1; //number of segments on our line
+      int count = 2; //number of consecutive colinear points
       //walk through array, see how many duplicates there are
       int j;
       for (j = 0; j < copyArr.length; j++) {
-        double thisSlope = origin.slopeTo(copyArr[j]); //skip duplicate points
+        Point thisPoint = copyArr[j];
+        double thisSlope = origin.slopeTo(thisPoint); //skip duplicate points
         if (thisSlope == Double.NEGATIVE_INFINITY) continue;
         if (thisSlope == lastSlope) {
           count++;
         } else {
-          if (count >= 4) handleLine(j - count, j - 1, copyArr);
-          count = 1;
+          if (count >= 4) handleLine(origin, j - count + 1, j - 1, copyArr);
+          count = 2;
           lastSlope = thisSlope;
         }
       }
       if (count >= 4) { //in case line segment hits end of array
-        handleLine(j - count, j - 1, copyArr);
+        handleLine(origin, j - count + 1, j - 1, copyArr);
       }
     }
   }
 
-  private void handleLine(int startIndex, int endIndex, Point arr[]) {
+  private void handleLine(Point originPoint, int startIndex, int endIndex, Point arr[]) {
     int pointsInLine = endIndex - startIndex + 1;
     Point[] line = new Point[pointsInLine];
-    for (int k = 0; k < pointsInLine; k++) {
-      line[k] = arr[startIndex + k];
+    line[0] = originPoint; //the first of the points in line is the origin point
+    for (int k = 0; k < pointsInLine - 1; k++) {
+      line[k + 1] = arr[startIndex + k];
     }
     drawNTuple(line);
     printNTuple(line);
