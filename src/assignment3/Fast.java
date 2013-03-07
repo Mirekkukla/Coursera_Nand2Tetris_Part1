@@ -85,6 +85,9 @@ public class Fast {
     StdDraw.setYscale(0, 32768);
     Arrays.sort(line);
     line[0].drawTo(line[line.length - 1]);
+    for (int i = 0; i < line.length; i++) {
+      line[i].draw();
+    }
   }
 
   private void printNTuple(Point[] line) {
