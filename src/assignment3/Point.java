@@ -2,18 +2,18 @@ import java.util.Comparator;
 
 public class Point implements Comparable<Point> {
 
-    // compare points by slope
-    public final Comparator<Point> SLOPE_ORDER = new SlopeOrder();       // YOUR DEFINITION HERE
+  // compare points by slope
+  public final Comparator<Point> SLOPE_ORDER = new SlopeOrder(); // YOUR DEFINITION HERE
 
-    private final int x;                              // x coordinate
-    private final int y;                              // y coordinate
+  private final int x; // x coordinate
+  private final int y; // y coordinate
 
-    // create the point (x, y)
-    public Point(int x, int y) {
-        /* DO NOT MODIFY */
-        this.x = x;
-        this.y = y;
-    }
+  // create the point (x, y)
+  public Point(int x, int y) {
+    /* DO NOT MODIFY */
+    this.x = x;
+    this.y = y;
+  }
 
   private class SlopeOrder implements Comparator<Point> {
     @Override
@@ -29,62 +29,64 @@ public class Point implements Comparable<Point> {
     }
   }
 
-    // plot this point to standard drawing
-    public void draw() {
-        /* DO NOT MODIFY */
-        StdDraw.point(x, y);
+  // plot this point to standard drawing
+  public void draw() {
+    /* DO NOT MODIFY */
+    StdDraw.point(x, y);
+  }
+
+  // draw line between this point and that point to standard drawing
+  public void drawTo(Point that) {
+    /* DO NOT MODIFY */
+    StdDraw.line(this.x, this.y, that.x, that.y);
+  }
+
+  // slope between this point and that point
+  public double slopeTo(Point that) {
+    if (compareTo(that) == 0) {
+      return Double.NEGATIVE_INFINITY;
     }
+    else if (this.x == that.x)
+      return Double.POSITIVE_INFINITY;
+    else if (this.y == that.y)
+      return 0.0; // positive infinity for horizontal lines
+    else
+      return ((double) (that.y - this.y)) / (that.x - this.x);
+  }
 
-    // draw line between this point and that point to standard drawing
-    public void drawTo(Point that) {
-        /* DO NOT MODIFY */
-        StdDraw.line(this.x, this.y, that.x, that.y);
+  // is this point lexicographically smaller than that one?
+  // comparing y-coordinates and breaking ties by x-coordinates
+  @Override
+  public int compareTo(Point that) {
+    if (this.y == that.y) {
+      return this.x - that.x;
+    } else {
+      return this.y - that.y;
     }
+  }
 
-    // slope between this point and that point
-    public double slopeTo(Point that) {
-      if (compareTo(that) == 0) {
-        return Double.NEGATIVE_INFINITY;
-      }
-      else if (this.x == that.x) return Double.POSITIVE_INFINITY;
-      else if (this.y == that.y) return 0.0; //positive infinity for horizontal lines
-      else return ((double)(that.y - this.y))/(that.x - this.x);
-    }
+  // return string representation of this point
+  @Override
+  public String toString() {
+    /* DO NOT MODIFY */
+    return "(" + x + ", " + y + ")";
+  }
 
-    // is this point lexicographically smaller than that one?
-    // comparing y-coordinates and breaking ties by x-coordinates
-    @Override
-    public int compareTo(Point that) {
-      if (this.y == that.y) {
-        return this.x - that.x;
-      } else {
-        return this.y - that.y;
-      }
-    }
+  // unit test
+  public static void main(String[] args) {
+    Point smallest = new Point(1, 2);
+    Point medium = new Point(1, 3);
+    Point largest = new Point(2, 3);
 
-    // return string representation of this point
-    @Override
-    public String toString() {
-        /* DO NOT MODIFY */
-        return "(" + x + ", " + y + ")";
-    }
+    assert (smallest.compareTo(smallest) == 0);
+    assert (smallest.compareTo(medium) < 0);
+    assert (medium.compareTo(smallest) > 0);
+    assert (medium.compareTo(largest) < 0);
+    assert (largest.compareTo(medium) > 0);
 
-    // unit test
-    public static void main(String[] args) {
-        Point smallest = new Point(1,2);
-        Point medium = new Point(1,3);
-        Point largest = new Point(2,3);
-
-        assert(smallest.compareTo(smallest) == 0);
-        assert(smallest.compareTo(medium) < 0);
-        assert(medium.compareTo(smallest) > 0);
-        assert(medium.compareTo(largest) < 0);
-        assert(largest.compareTo(medium) > 0);
-
-        StdOut.println("negative inf: " + smallest.slopeTo(smallest));
-        StdOut.println("pos zero: " + medium.slopeTo(largest));
-        StdOut.println("pos inf: " + smallest.slopeTo(medium));
-        StdOut.println("pos one: " + smallest.slopeTo(largest));
-
-    }
+    assert (smallest.slopeTo(smallest) == Double.NEGATIVE_INFINITY);
+    assert (medium.slopeTo(largest) == 0.0);
+    assert (smallest.slopeTo(medium) == Double.POSITIVE_INFINITY);
+    assert (smallest.slopeTo(largest) == 1.0);
+  }
 }

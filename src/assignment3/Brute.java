@@ -5,14 +5,16 @@ import java.util.Arrays;
 public class Brute {
   private Point[] pointArr;
 
-  public Brute(String filename) {
+  private Brute(String filename) {
     readFile(filename);
     checkAllTuples();
   }
 
+  public Brute() {}
+
   private void readFile(String filename) {
     try {
-      BufferedReader br = new BufferedReader(new FileReader("src/assignment3/" + filename));
+      BufferedReader br = new BufferedReader(new FileReader(filename));
       int numPoints = Integer.parseInt(br.readLine());
       pointArr = new Point[numPoints];
       for (int i = 0; i < numPoints; i++) {

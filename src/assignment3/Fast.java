@@ -7,14 +7,16 @@ public class Fast {
   private Point[] points;
   private int N;
 
-  public Fast(String filename) {
+  private Fast(String filename) {
     readFile(filename);
     runAlg();
   }
 
+  public Fast() {}
+
   private void readFile(String filename) {
     try {
-      BufferedReader br = new BufferedReader(new FileReader("src/assignment3/" + filename));
+      BufferedReader br = new BufferedReader(new FileReader(filename));
       N = Integer.parseInt(br.readLine());
       points = new Point[N];
       for (int i = 0; i < N; i++) {
