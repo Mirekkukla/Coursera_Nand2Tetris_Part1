@@ -36,10 +36,13 @@ public class Fast {
   private void runAlg() {
     for (int i = 0; i < N; i++) {//each point gets to be the origin once
       Point origin = points[i];
+      StdDraw.setXscale(0, 32768);
+      StdDraw.setYscale(0, 32768);
+      origin.draw();
 
       //array of points, sorted according to the slope they have relative to origin
       //only consider points that are at a higher index (than the origin) in pointArr
-      Point[] pointsBySlope = Arrays.copyOfRange(points, i + 1, N);
+      Point[] pointsBySlope = Arrays.copyOfRange(points, 0, N);
       Arrays.sort(pointsBySlope, origin.SLOPE_ORDER);
 
       //search pointsBySlope for all sets of size 3 or more that have the same slope
@@ -72,22 +75,23 @@ public class Fast {
   }
 
   private void handleSegment(Point originPoint, Point otherPoints[]) {
-    //Arrays.sort(otherPoints);
-    Point[] line = new Point[1 + otherPoints.length];
-    line[0] = originPoint;
-    System.arraycopy(otherPoints, 0, line, 1, otherPoints.length);
-    drawNTuple(line);
-    printNTuple(line);
+    Arrays.sort(otherPoints);
+    //only choose use this line is the originPoint is the leftmost point
+    //this guarentees each line segment gets chosen exactly once
+    if (originPoint.compareTo(otherPoints[0]) <= 0) {
+      Point[] line = new Point[1 + otherPoints.length];
+      line[0] = originPoint;
+      System.arraycopy(otherPoints, 0, line, 1, otherPoints.length);
+      drawLine(line);
+      printNTuple(line);
+    }
   }
 
-  private void drawNTuple(Point[] line) {
+  private void drawLine(Point[] line) {
     StdDraw.setXscale(0, 32768);
     StdDraw.setYscale(0, 32768);
     Arrays.sort(line);
     line[0].drawTo(line[line.length - 1]);
-    for (int i = 0; i < line.length; i++) {
-      line[i].draw();
-    }
   }
 
   private void printNTuple(Point[] line) {

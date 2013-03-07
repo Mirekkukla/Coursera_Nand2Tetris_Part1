@@ -36,6 +36,9 @@ public class Brute {
     int arrSize = pointArr.length;
     Point[] fourPoints = new Point[4];
     for (int i1 = 0; i1 < arrSize; i1++) {
+      StdDraw.setXscale(0, 32768);
+      StdDraw.setYscale(0, 32768);
+      pointArr[i1].draw();//draw each point once
       for (int i2 = i1 + 1; i2 < arrSize; i2++) {
         for (int i3 = i2 + 1; i3 < arrSize; i3++) {
           for (int i4 = i3 + 1; i4 < arrSize; i4++) {
@@ -65,9 +68,6 @@ public class Brute {
     StdDraw.setYscale(0, 32768);
     Arrays.sort(fourPoints);
     fourPoints[0].drawTo(fourPoints[fourPoints.length - 1]);
-    for (int i = 0; i < fourPoints.length; i++) {
-      fourPoints[i].draw();
-    }
   }
 
   private void print4Tuple(Point[] fourPoints) {
