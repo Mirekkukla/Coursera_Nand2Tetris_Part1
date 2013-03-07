@@ -57,7 +57,7 @@ public class Fast {
         } else {
           if (currentSetSize >= 4) {
             //otherPoints doesn't include the origin point
-            Point[] otherPoints = Arrays.copyOfRange(pointsBySlope, j - currentSetSize + 1, j - 1);
+            Point[] otherPoints = Arrays.copyOfRange(pointsBySlope, j - currentSetSize + 1, j);
             handleSegment(origin, otherPoints);
           }
           currentSetSize = 2;
@@ -65,14 +65,14 @@ public class Fast {
         }
       }
       if (currentSetSize >= 4) { //in current set is at the end of the array
-        Point[] otherPoints = Arrays.copyOfRange(pointsBySlope, j - currentSetSize + 1, j - 1);
+        Point[] otherPoints = Arrays.copyOfRange(pointsBySlope, j - currentSetSize + 1, j);
         handleSegment(origin, otherPoints);
       }
     }
   }
 
   private void handleSegment(Point originPoint, Point otherPoints[]) {
-    Arrays.sort(otherPoints);
+    //Arrays.sort(otherPoints);
     Point[] line = new Point[1 + otherPoints.length];
     line[0] = originPoint;
     System.arraycopy(otherPoints, 0, line, 1, otherPoints.length);
