@@ -19,10 +19,13 @@ public class Fast {
       BufferedReader br = new BufferedReader(new FileReader(filename));
       N = Integer.parseInt(br.readLine());
       points = new Point[N];
-      for (int i = 0; i < N; i++) {
-        String line = br.readLine();
+      String line;
+      int i = 0;
+      while ((line = br.readLine()) != null) {
+        if (line.isEmpty()) continue;
         String[] nums = line.trim().split("\\s+");
         points[i] = new Point(Integer.parseInt(nums[0]), Integer.parseInt(nums[1]));
+        i++;
       }
       br.close();
     } catch (Exception e){
@@ -69,6 +72,7 @@ public class Fast {
   }
 
   private void handleSegment(Point originPoint, Point otherPoints[]) {
+    Arrays.sort(otherPoints);
     Point[] line = new Point[1 + otherPoints.length];
     line[0] = originPoint;
     System.arraycopy(otherPoints, 0, line, 1, otherPoints.length);

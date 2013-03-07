@@ -17,10 +17,13 @@ public class Brute {
       BufferedReader br = new BufferedReader(new FileReader(filename));
       int numPoints = Integer.parseInt(br.readLine());
       pointArr = new Point[numPoints];
-      for (int i = 0; i < numPoints; i++) {
-        String line = br.readLine();
+      String line;
+      int i = 0;
+      while ((line = br.readLine()) != null) {
+        if (line.isEmpty()) continue;
         String[] nums = line.trim().split("\\s+");
         pointArr[i] = new Point(Integer.parseInt(nums[0]), Integer.parseInt(nums[1]));
+        i++;
       }
       br.close();
     } catch (Exception e){
