@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 
 public class Fast {
-  private Point[] pointArr;
+  private Point[] points;
   private int N;
 
   public Fast(String filename) {
@@ -16,11 +16,11 @@ public class Fast {
     try {
       BufferedReader br = new BufferedReader(new FileReader("src/assignment3/" + filename));
       N = Integer.parseInt(br.readLine());
-      pointArr = new Point[N];
+      points = new Point[N];
       for (int i = 0; i < N; i++) {
         String line = br.readLine();
         String[] nums = line.trim().split("\\s+");
-        pointArr[i] = new Point(Integer.parseInt(nums[0]), Integer.parseInt(nums[1]));
+        points[i] = new Point(Integer.parseInt(nums[0]), Integer.parseInt(nums[1]));
       }
       br.close();
     } catch (Exception e){
@@ -29,47 +29,47 @@ public class Fast {
   }
 
   private void runAlg() {
-    //each point gets to be the origin
-    for (int i = 0; i < N; i++) {
-      Point origin = pointArr[i];
+    for (int i = 0; i < N; i++) {//each point gets to be the origin once
+      Point origin = points[i];
 
-      //make a duplicate array for sorting
-      int pointsOnRight = N - i - 1 ; //only compare to points to the right
-      Point[] copyArr = new Point[pointsOnRight];
-      for (int j = 0; j + i + 1 < N; j++) {
-        copyArr[j] = pointArr[j + i + 1];
-      }
+      //array of points, sorted according to the slope they have relative to origin
+      //only consider points that are at a higher index (than the origin) in pointArr
+      Point[] pointsBySlope = Arrays.copyOfRange(points, i + 1, N);
+      Arrays.sort(pointsBySlope, origin.SLOPE_ORDER);
 
-      Arrays.sort(copyArr, origin.SLOPE_ORDER);
+      //search pointsBySlope for all sets of size 3 or more that have the same slope
+      //for each set x we find, we know that all the points in x U {origin}
+      //lie on a straight line segment
       double lastSlope = Double.NEGATIVE_INFINITY; //slope of point with itself
-      int count = 2; //number of consecutive colinear points
-      //walk through array, see how many duplicates there are
+      int currentSetSize = 2; //number of points with same slope
       int j;
-      for (j = 0; j < copyArr.length; j++) {
-        Point thisPoint = copyArr[j];
-        double thisSlope = origin.slopeTo(thisPoint); //skip duplicate points
-        if (thisSlope == Double.NEGATIVE_INFINITY) continue;
+      for (j = 0; j < pointsBySlope.length; j++) {
+        Point thisPoint = pointsBySlope[j];
+        double thisSlope = origin.slopeTo(thisPoint);
+        if (thisSlope == Double.NEGATIVE_INFINITY) continue; //skip duplicate points
         if (thisSlope == lastSlope) {
-          count++;
+          currentSetSize++;
         } else {
-          if (count >= 4) handleLine(origin, j - count + 1, j - 1, copyArr);
-          count = 2;
+          if (currentSetSize >= 4) {
+            //otherPoints doesn't include the origin point
+            Point[] otherPoints = Arrays.copyOfRange(pointsBySlope, j - currentSetSize + 1, j - 1);
+            handleSegment(origin, otherPoints);
+          }
+          currentSetSize = 2;
           lastSlope = thisSlope;
         }
       }
-      if (count >= 4) { //in case line segment hits end of array
-        handleLine(origin, j - count + 1, j - 1, copyArr);
+      if (currentSetSize >= 4) { //in current set is at the end of the array
+        Point[] otherPoints = Arrays.copyOfRange(pointsBySlope, j - currentSetSize + 1, j - 1);
+        handleSegment(origin, otherPoints);
       }
     }
   }
 
-  private void handleLine(Point originPoint, int startIndex, int endIndex, Point arr[]) {
-    int pointsInLine = endIndex - startIndex + 1;
-    Point[] line = new Point[pointsInLine];
-    line[0] = originPoint; //the first of the points in line is the origin point
-    for (int k = 0; k < pointsInLine - 1; k++) {
-      line[k + 1] = arr[startIndex + k];
-    }
+  private void handleSegment(Point originPoint, Point otherPoints[]) {
+    Point[] line = new Point[1 + otherPoints.length];
+    line[0] = originPoint;
+    System.arraycopy(otherPoints, 0, line, 1, otherPoints.length);
     drawNTuple(line);
     printNTuple(line);
   }
@@ -78,13 +78,7 @@ public class Fast {
     StdDraw.setXscale(0, 32768);
     StdDraw.setYscale(0, 32768);
     Arrays.sort(line);
-    //line[0].drawTo(line[line.length - 1]);
-    for (int i = 0; i < line.length; i++) {
-      line[i].draw();
-      if (i < line.length - 1) {//delete later
-        line[i].drawTo(line[i+1]);
-      }
-    }
+    line[0].drawTo(line[line.length - 1]);
   }
 
   private void printNTuple(Point[] line) {

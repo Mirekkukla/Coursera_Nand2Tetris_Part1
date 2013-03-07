@@ -3,7 +3,7 @@ import java.io.FileReader;
 import java.util.Arrays;
 
 public class Brute {
-  Point[] pointArr;
+  private Point[] pointArr;
 
   public Brute(String filename) {
     readFile(filename);
