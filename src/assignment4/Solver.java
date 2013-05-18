@@ -31,7 +31,7 @@ public class Solver {
   // the neighbor that was the parent of pboard
   private void insertNeighbors(MinPQ<pBoard> queue, pBoard pboard) {
     for (Board neighborBoard : pboard.board.neighbors()) {
-      if (neighborBoard.equals(pboard.board)) {
+      if (pboard.parent != null && neighborBoard.equals(pboard.parent.board)) {
         continue;
       }
       queue.insert(new pBoard(neighborBoard, pboard, pboard.moves + 1));

@@ -3,7 +3,7 @@ public class Board {
   private final short[][] blocks; // ok for any board <= than 180x180
   private final int hamming = -1;
   private final int manhattan = -1;
-  private Stack<Board> neighbors;
+  private Stack<Board> neighbors = null;
   private final short blank = 0;
   private short emptyI; // i coord of empty block
   private short emptyJ; // j coord of empty block
@@ -74,10 +74,8 @@ public class Board {
   public boolean equals(Object y) {
     if (y == this) return true;
     if (y == null) return false;
-    if (y.getClass() != this.getClass()) return false;
+    if (!(y instanceof Board)) return false;
     if (this.dim != ((Board) y).dim) return false;
-    if (this.manhattan != ((Board) y).manhattan || this.hamming != ((Board) y).hamming)
-      return false;
     return this.toString().equals(y.toString());
   }
 
@@ -98,7 +96,7 @@ public class Board {
         }
       }
     }
-    return neighbors();
+    return neighbors;
   }
 
   // returns a copy of the array (takes shors, return its)
