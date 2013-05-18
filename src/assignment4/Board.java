@@ -1,12 +1,12 @@
 public class Board {
   private final int dim;
+  private int hamming = -1;
+  private int manhattan = -1;
   private final short[][] blocks; // ok for any board <= than 180x180
-  private final int hamming = -1;
-  private final int manhattan = -1;
+  private final short emptyCell = 0;
+  private final short emptyI; // i coord of empty block
+  private final short emptyJ; // j coord of empty block
   private Stack<Board> neighbors = null;
-  private final short blank = 0;
-  private short emptyI; // i coord of empty block
-  private short emptyJ; // j coord of empty block
 
   // construct a board from an N-by-N array of ints
   public Board(int[][] blocks) {
@@ -14,15 +14,19 @@ public class Board {
     if (dim > 181) throw new IllegalArgumentException("Board has to be <= 180x180");
     if (dim < 2) throw new IllegalArgumentException("Board has to be >= 2x2");
     this.blocks = new short[dim][dim];
+    int temp_emptyI =  -1; //allows us to keep emptyI,J final
+    int temp_emptyJ =  -1;
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
         this.blocks[i][j] = (short) blocks[i][j];
-        if (blocks[i][j] == 0) {
-          emptyI = (short) i;
-          emptyJ = (short) j;
+        if (blocks[i][j] == emptyCell) {
+          temp_emptyI = i;
+          temp_emptyJ = j;
         }
       }
     }
+    emptyI = (short) temp_emptyI;
+    emptyJ = (short) temp_emptyJ;
   }
 
   // the length of the side of the board
@@ -32,22 +36,19 @@ public class Board {
 
   // number of blocks out of place
   public int hamming() {
-    if (hamming == -1)
-      return getHammingScore();
-    else
-      return hamming;
+    if (hamming == -1) hamming = getHammingScore();
+    return hamming;
   }
 
   // sum of Manhattan distances between blocks and goal
   public int manhattan() {
-    if (manhattan == -1)
-      return getManhattanScore();
-    else
-      return manhattan;
+    if (manhattan == -1) manhattan = getManhattanScore();
+    return manhattan;
   }
 
   // is this board the goal board?
   public boolean isGoal() {
+    if (emptyI != dim - 1 || emptyJ != dim - 1) return false;
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
         if (i == dim - 1 && j == dim - 1) continue; // don't check bottom right, should be zero
@@ -75,8 +76,16 @@ public class Board {
     if (y == this) return true;
     if (y == null) return false;
     if (!(y instanceof Board)) return false;
-    if (this.dim != ((Board) y).dim) return false;
-    return this.toString().equals(y.toString());
+
+    Board that = (Board) y;
+    if (this.dim != that.dim) return false;
+    if (this.emptyI != that.emptyI || this.emptyJ != that.emptyJ) return false;
+    for (int i = 0; i < dim; i++) {
+      for (int j = 0; j < dim; j++) {
+        if (this.blocks[i][j] != that.blocks[i][j]) return false;
+      }
+    }
+    return true;
   }
 
   // returns stack of all neighboring boards
@@ -89,7 +98,7 @@ public class Board {
               && isLegalLoc(emptyI + i_shift, emptyJ + j_shift)) {
             int[][] newBlocks = blockCopy(blocks);
             newBlocks[emptyI][emptyJ] = blocks[emptyI + i_shift][emptyJ + j_shift];
-            newBlocks[emptyI + i_shift][emptyJ + j_shift] = blank;
+            newBlocks[emptyI + i_shift][emptyJ + j_shift] = emptyCell;
             Board neighbor = new Board(newBlocks);
             neighbors.push(neighbor);
           }
@@ -130,7 +139,7 @@ public class Board {
     int count = 0;
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
-        if ((blocks[i][j] != blank) && (blocks[i][j] != numFromIJCoord(i, j))) count++;
+        if ((blocks[i][j] != emptyCell) && (blocks[i][j] != numFromIJCoord(i, j))) count++;
       }
     }
     return count;
@@ -142,7 +151,7 @@ public class Board {
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
         int num = blocks[i][j];
-        if (num != blank)
+        if (num != emptyCell)
           count += Math.abs(iCoordFromNum(num) - i) + Math.abs(jCoordFromNum(num) - j);
       }
     }
@@ -208,6 +217,5 @@ public class Board {
     // for (Board board : doneB.neighbors()) {
     // System.out.println(board.toString());
     // }
-
   }
 }

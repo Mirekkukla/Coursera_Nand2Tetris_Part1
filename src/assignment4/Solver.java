@@ -99,7 +99,9 @@ public class Solver {
     System.out.println(initial.toString());
 
     // solve the puzzle
+    long startTime = System.currentTimeMillis();
     Solver solver = new Solver(initial);
+    long finishTime = System.currentTimeMillis();
 
     // print solution to standard output
     if (!solver.isSolvable())
@@ -109,5 +111,6 @@ public class Solver {
       for (Board board : solver.solution())
         StdOut.println(board);
     }
+    System.out.println("That took: " + (finishTime - startTime) * 1.0 / 1000 + " s");
   }
 }
