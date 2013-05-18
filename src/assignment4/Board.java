@@ -6,7 +6,6 @@ public class Board {
   private final short emptyCell = 0;
   private final short emptyI; // i coord of empty block
   private final short emptyJ; // j coord of empty block
-  private Stack<Board> neighbors = null;
 
   // construct a board from an N-by-N array of ints
   public Board(int[][] blocks) {
@@ -90,18 +89,16 @@ public class Board {
 
   // returns stack of all neighboring boards
   public Iterable<Board> neighbors() {
-    if (neighbors == null) { //if not cached
-      neighbors = new Stack<Board>();
-      for (int i_shift = -1; i_shift <= 1; i_shift++) {
-        for (int j_shift = -1; j_shift <= 1; j_shift++) {
-          if (Math.abs(i_shift) - Math.abs(j_shift) != 0
-              && isLegalLoc(emptyI + i_shift, emptyJ + j_shift)) {
-            int[][] newBlocks = blockCopy(blocks);
-            newBlocks[emptyI][emptyJ] = blocks[emptyI + i_shift][emptyJ + j_shift];
-            newBlocks[emptyI + i_shift][emptyJ + j_shift] = emptyCell;
-            Board neighbor = new Board(newBlocks);
-            neighbors.push(neighbor);
-          }
+    Stack<Board> neighbors = new Stack<Board>();
+    for (int i_shift = -1; i_shift <= 1; i_shift++) {
+      for (int j_shift = -1; j_shift <= 1; j_shift++) {
+        if (Math.abs(i_shift) - Math.abs(j_shift) != 0
+            && isLegalLoc(emptyI + i_shift, emptyJ + j_shift)) {
+          int[][] newBlocks = blockCopy(blocks);
+          newBlocks[emptyI][emptyJ] = blocks[emptyI + i_shift][emptyJ + j_shift];
+          newBlocks[emptyI + i_shift][emptyJ + j_shift] = emptyCell;
+          Board neighbor = new Board(newBlocks);
+          neighbors.push(neighbor);
         }
       }
     }
