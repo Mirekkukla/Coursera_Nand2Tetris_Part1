@@ -8,5 +8,7 @@
 	<classpathentry exported="true" kind="lib" path="C:/Users/Ninjoncrack/algs4/algs4.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/Ninjoncrack/algs4/stdlib.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Ninjoncrack/algs4/classmexer.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ninjoncrack/algs4/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Ninjoncrack/algs4/junit-4.11.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

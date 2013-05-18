@@ -2,6 +2,7 @@ public class Solver {
   private pBoard solution = null;
   private final MinPQ<pBoard> pBoardQ = new MinPQ<pBoard>();
   private final MinPQ<pBoard> twinPBoardQ = new MinPQ<pBoard>();
+  private Stack<Board> solutionStack = null;
 
   // find a solution to the initial board (using the A* algorithm)
   // search for solution on twin board at the same time. If the twin
@@ -11,7 +12,6 @@ public class Solver {
     twinPBoardQ.insert(new pBoard(initial.twin(), null, 0));
 
     while (true) {
-      if (pBoardQ.isEmpty()) break;
       pBoard currentPBoard = pBoardQ.delMin();
       pBoard currentTwinBoard = twinPBoardQ.delMin();
 
@@ -58,7 +58,6 @@ public class Solver {
     }
   }
 
-  // is the initial board solvable? //TODO: DO THETWO BOARD THING
   public boolean isSolvable() {
     if (solution == null) return false;
     else return true;
@@ -72,14 +71,18 @@ public class Solver {
   // sequence of boards in a shortest solution; null if no solution
   public Iterable<Board> solution() {
     if (solution == null) return null;
-    Stack<Board> stack = new Stack<Board>();
-    stack.push(solution.board);
-    pBoard parentPBoard = solution.parent;
-    while (parentPBoard != null) {
-      stack.push(parentPBoard.board);
-      parentPBoard = parentPBoard.parent;
+    if (solutionStack == null) {
+      solutionStack = new Stack<Board>();
+      solutionStack.push(solution.board);
+      pBoard parentPBoard = solution.parent;
+      while (parentPBoard != null) {
+        solutionStack.push(parentPBoard.board);
+        parentPBoard = parentPBoard.parent;
+      }
+      return solutionStack;
+    } else {
+      return solutionStack;
     }
-    return stack;
   }
 
   public static void main(String[] args) { // solve a slider puzzle (given below)

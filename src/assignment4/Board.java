@@ -1,22 +1,24 @@
 public class Board {
   private final int dim;
-  private final char[][] blocks;
+  private final short[][] blocks; // ok for any board <= than 180x180
   private final int hamming;
   private final int manhattan;
-  private final int blank = 0;
-  private int emptyI; // i coord of empty block
-  private int emptyJ; // j coord of empty block
+  private final short blank = 0;
+  private short emptyI; // i coord of empty block
+  private short emptyJ; // j coord of empty block
 
   // construct a board from an N-by-N array of ints
   public Board(int[][] blocks) {
     dim = blocks.length;
-    this.blocks = new char[dim][dim];
+    if (dim > 181) throw new IllegalArgumentException("Board has to be <= 180x180");
+    if (dim < 2) throw new IllegalArgumentException("Board has to be >= 2x2");
+    this.blocks = new short[dim][dim];
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
-        this.blocks[i][j] = (char) blocks[i][j];
+        this.blocks[i][j] = (short) blocks[i][j];
         if (blocks[i][j] == 0) {
-          emptyI = i;
-          emptyJ = j;
+          emptyI = (short) i;
+          emptyJ = (short) j;
         }
       }
     }
@@ -52,7 +54,7 @@ public class Board {
 
   // a board obtained by exchanging two adjacent blocks in the same row
   public Board twin() {
-    int twinBlocks[][] = blockIntCopy(blocks);
+    int twinBlocks[][] = blockCopy(blocks);
     int swapRow; //make sure we're not swapping a block with a blank
     if (blocks[0][0] != 0 && blocks[0][1] != 0) swapRow = 0;
     else swapRow = 1;
@@ -79,7 +81,7 @@ public class Board {
       for (int j_shift = -1; j_shift <= 1; j_shift++) {
         if (Math.abs(i_shift) - Math.abs(j_shift) != 0
             && isLegalLoc(emptyI + i_shift, emptyJ + j_shift)) {
-          int[][] newBlocks = blockIntCopy(blocks);
+          int[][] newBlocks = blockCopy(blocks);
           newBlocks[emptyI][emptyJ] = blocks[emptyI + i_shift][emptyJ + j_shift];
           newBlocks[emptyI + i_shift][emptyJ + j_shift] = 0;
           Board neighbor = new Board(newBlocks);
@@ -90,9 +92,8 @@ public class Board {
     return stack;
   }
 
-  // takes array of chars, returns array cast to ints
-  // which we're assuming has the same dims as this board
-  private int[][] blockIntCopy(char[][] oldBlocks) {
+  // takes array of shorts, returns array of ints
+  private int[][] blockCopy(short[][] oldBlocks) {
     int[][] newBlocks = new int[dim][dim];
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
@@ -190,6 +191,9 @@ public class Board {
 //    System.out.println(doneB.toString());
 //
 //    Board twinB = doneB.twin();
+//    assert (doneB.isGoal() == false);
+//    assert (doneB.getManhattanScore() == 2);
+//    assert (doneB.getHammingScore() == 2);
 //    System.out.println("Twin board");
 //    System.out.println(twinB.toString());
 //
