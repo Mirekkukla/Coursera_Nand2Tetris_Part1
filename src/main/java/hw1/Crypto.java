@@ -1,4 +1,4 @@
-package com.ninjoncrack.crypto.hw1;
+package hw1;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
