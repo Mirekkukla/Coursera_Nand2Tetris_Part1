@@ -4,10 +4,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class TransactionTest {
+class SetupTest {
 
     @Test
-    public void testBro() {
+    public void shouldFail() {
+        assertEquals(false, true);
+    }
+
+    @Test
+    public void shouldSucceed() {
         assertEquals(true, true);
     }
 
