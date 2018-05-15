@@ -5,5 +5,11 @@
 *.war
 *.ear
 
+# IntelliJ #
+*/.idea/*
+*.idea
+*.iml
+
 # Other #
 *.zip
+.DS_Store
