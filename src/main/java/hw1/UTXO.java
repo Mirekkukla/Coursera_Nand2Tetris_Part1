@@ -2,6 +2,7 @@ package hw1;
 
 import java.util.Arrays;
 
+/** Represents a "Unspent TransaXtion Output" */
 public class UTXO implements Comparable<UTXO> {
 
     /** Hash of the transaction from which this UTXO originates */
