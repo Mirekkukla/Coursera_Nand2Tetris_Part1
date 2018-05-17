@@ -1,6 +1,7 @@
 package hw1;
 
 import java.security.PublicKey;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,8 +32,8 @@ public class TxHandler {
      *     values; and false otherwise.
      */
     public boolean isValidTx(Transaction tx) {
-
         Set<UTXO> claimedUTXO = new HashSet<>();
+
         double sumOfInputValues = 0d;
         for (int inputIndex = 0; inputIndex < tx.getInputs().size(); inputIndex++) {
             Transaction.Input txInput = tx.getInput(inputIndex);
@@ -44,7 +45,8 @@ public class TxHandler {
                 return false;
             }
 
-            // 2) make sure the input is signed by whoever owns it (ie was given the amt as part of another tx output)
+            // 2) make sure the input is signed by whoever owns it
+            // (ie whoever was given the amt as part of the prior tx output)
             Transaction.Output unusedOutput = utxoPool.getTxOutput(candidateUTXO);
             PublicKey ownerOfUnusedOutput = unusedOutput.address;
             byte[] rawDataToSign = tx.getRawDataToSign(inputIndex);
@@ -52,13 +54,13 @@ public class TxHandler {
                 return false;
             }
 
-            // 3) make sure this tx hasn't already claimed this utxo on a prior loop iteration
+            // 3) make sure our tx hasn't already claimed this particular utxo on a prior loop iteration
             if (claimedUTXO.contains(candidateUTXO)) {
                 return false;
             }
             claimedUTXO.add(candidateUTXO);
 
-            // the output passes all checks so far, keep tracking of our running total
+            // the output passes all checks so far; keep track of our running total
             sumOfInputValues += unusedOutput.value;
         }
 
@@ -77,7 +79,7 @@ public class TxHandler {
             sumOfOutputValues += txOutput.value;
         }
 
-        // 5) net output value has to be more than or equal to net input value
+        // 5) net input value has to be more than or equal to net output value
         if (sumOfInputValues < sumOfOutputValues) {
             return false;
         }
@@ -92,8 +94,44 @@ public class TxHandler {
      * updating the current UTXO pool as appropriate.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
-        // IMPLEMENT THIS
-        return new Transaction[0];
+        // get all transactions that are valid on their own
+        List<Transaction> validInIsolationTx = new ArrayList<>();
+        for (Transaction tx : possibleTxs) {
+            if (isValidTx(tx)) {
+                validInIsolationTx.add(tx);
+            }
+        }
+
+        // iterate through all the tx's UTXOs
+        // whenever run into a transactions that tries to spend an already-encountered UTXO,
+        // throw it away. The remaining transactions will be mutually consistent and (locally) maximal
+
+        Set<UTXO> claimedUTXO = new HashSet<>();
+        List<Transaction> acceptedTx = new ArrayList<>();
+
+        for (Transaction tx : validInIsolationTx) {
+            boolean shouldAcceptTx = true;
+
+            Set<UTXO> txsUTXOs = new HashSet<>();
+            for (int inputIndex = 0; inputIndex < tx.getInputs().size(); inputIndex++) {
+                Transaction.Input txInput = tx.getInput(inputIndex);
+                UTXO utxo = new UTXO(txInput.prevTxHash, txInput.outputIndex);
+                if (claimedUTXO.contains(utxo)) {
+                    shouldAcceptTx = false;
+                    break;
+                }
+                txsUTXOs.add(utxo);
+            }
+
+            if (shouldAcceptTx) {
+                claimedUTXO.addAll(txsUTXOs);
+                acceptedTx.add(tx);
+            }
+        }
+
+        // TODO: uptdate the UTXO pool
+
+        return acceptedTx.toArray(new Transaction[acceptedTx.size()]);
     }
 
 }
