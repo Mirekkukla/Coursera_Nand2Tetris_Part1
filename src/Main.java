@@ -5,7 +5,7 @@ import java.security.*;
  * Main test code for Cousera cryptocurrency assignment1, based on code at
  * https://github.com/keskival/cryptocurrency-course-materials/blob/master/assignment1/Main.java
  */
-class Main {
+public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, SignatureException {
 

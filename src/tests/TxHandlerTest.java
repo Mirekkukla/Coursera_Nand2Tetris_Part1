@@ -22,7 +22,8 @@ class TxHandlerTest {
     }
 
     // single transaction: 10 (scrooge) -> 5, 3, 2 (alice)
-    @Test void tx2isCorrect() {
+    @Test
+    void tx2isCorrect() {
         TxHandler handler = getHandlerWithRootTx();
         testHandling(handler, new Main.Tx[]{tx2}, new Main.Tx[]{tx2});
     }

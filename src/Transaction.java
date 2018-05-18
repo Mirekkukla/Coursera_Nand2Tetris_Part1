@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 
-class Transaction {
+public class Transaction {
 
     public class Input {
         /** hash of the Transaction whose output is being used */
