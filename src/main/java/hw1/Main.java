@@ -74,52 +74,6 @@ public class Main {
         System.out.println("txHandler.isValidTx(tx2) returns: " + txHandler.isValidTx(tx2));
         System.out.println("txHandler.handleTxs(new Transaction[]{tx2}) returns: " +
                 txHandler.handleTxs(new Transaction[]{tx2}).length + " transaction(s)");
-
-
-        /*
-         * Set up a set of test Transactions
-         */
-        List<Transaction> round3Tx = new ArrayList<>();
-
-        // give scrooge the 5 coin
-        Tx tx3_1 = new Tx();
-        tx3_1.addInput(tx2.getHash(), 0);
-        tx2.signTx(pk_alice.getPrivate(), 0); // signing the $5 output from before at index 0
-        tx3_1.addOutput(5, pk_scrooge.getPublic()); // give it back to scrooge
-
-        // give scrooge the 5 and 3 coins; illegal, conflicts with the above
-        Tx tx3_2 = new Tx();
-        tx3_2.addInput(tx2.getHash(), 0); // WARNING: double spending!
-        tx3_2.addInput(tx2.getHash(), 1);
-        tx2.signTx(pk_alice.getPrivate(), 0); // signing the $5 output from before at index 0
-        tx2.signTx(pk_alice.getPrivate(), 1); // signing the $3 output from before at index 1
-        tx3_2.addOutput(5, pk_scrooge.getPublic()); // give it back to scrooge
-
-        // give scrooge the 3 and 2 coins; legal
-        Tx tx3_3 = new Tx();
-        tx3_3.addInput(tx2.getHash(), 1); // this should be cool, spending the rest
-        tx3_3.addInput(tx2.getHash(), 2);
-        tx2.signTx(pk_alice.getPrivate(), 1); // signing the $3 output from before at index 1
-        tx2.signTx(pk_alice.getPrivate(), 2); // signing the $2 output from before at index 2
-        tx3_3.addOutput(5, pk_scrooge.getPublic()); // give it back to scrooge
-
-        // give scrouge the last 2 coin; illegal in light of the above
-        Tx tx3_4 = new Tx();
-        tx3_4.addInput(tx2.getHash(), 2); // WARNING: double spending!
-        tx2.signTx(pk_alice.getPrivate(), 2); // signing the $2 output from before at index 2
-        tx3_4.addOutput(2, pk_scrooge.getPublic()); // give it back to scrooge
-
-
-        tx2.addOutput(3, pk_alice.getPublic());
-        tx2.addOutput(2, pk_alice.getPublic());
-        // Note that in the real world fixed-point types would be used for the values, not doubles.
-        // Doubles exhibit floating-point rounding errors. This type should be for example BigInteger
-        // and denote the smallest coin fractions (Satoshi in Bitcoin).
-
-        // There is only one (at position 0) Transaction.Input in tx2
-        // and it contains the coin from Scrooge, therefore I have to sign with the private key from Scrooge
-
-
     }
 
 
