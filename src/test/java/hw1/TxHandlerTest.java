@@ -98,7 +98,6 @@ class TxHandlerTest {
     private Tx createTx2() {
         Tx tx2 = new Tx();
         tx2.addInput(rootTx.getHash(), 0);
-
         tx2.addOutput(5, pk_alice.getPublic());
         tx2.addOutput(3, pk_alice.getPublic());
         tx2.addOutput(2, pk_alice.getPublic());
@@ -111,32 +110,35 @@ class TxHandlerTest {
     // give scrooge the 5 coin
     private Tx getTx3_1() {
         Tx tx3_1 = new Tx();
-        tx3_1.addInput(tx2.getHash(), 0); // 5 coin is at index 0
+        tx3_1.addInput(tx2.getHash(), 0); // $5 coin is at index 0
         tx3_1.addOutput(5, pk_scrooge.getPublic()); // give it back to scrooge
-        safeSign(tx2, pk_alice.getPrivate(), 0);  // signed by alice
+        safeSign(tx3_1, pk_alice.getPrivate(), 0);  // signed by alice
         return tx3_1;
     }
 
     // give scrooge the 5 and 3 coins
     private Tx getTx3_2() {
         Tx tx3_2 = new Tx();
-        tx3_2.addInput(tx2.getHash(), 0); // 5 coin
-        tx3_2.addInput(tx2.getHash(), 1); // 3 coin
-        safeSign(tx2, pk_alice.getPrivate(), 0); // signing the $5 output from before at index 0
-        safeSign(tx2, pk_alice.getPrivate(), 1); // signing the $3 output from before at index 1
+        tx3_2.addInput(tx2.getHash(), 0); // $5 coin
+        tx3_2.addInput(tx2.getHash(), 1); // $3 coin
         tx3_2.addOutput(8, pk_scrooge.getPublic()); // give it back to scrooge
+        safeSign(tx3_2, pk_alice.getPrivate(), 0); // signing the $5 output from before at index 0
+        safeSign(tx3_2, pk_alice.getPrivate(), 1); // signing the $3 output from before at index 1
         return tx3_2;
     }
 
     // give scrooge the 3 and 2 coins; legal
     private Tx getTx3_3() {
         Tx tx3_3 = new Tx();
-        tx3_3.addInput(tx2.getHash(), 1); // 3 coin
-        tx3_3.addInput(tx2.getHash(), 2); // 2 coin
-        safeSign(tx2, pk_alice.getPrivate(), 1); // signing the $3 output from before at index 1
-        safeSign(tx2, pk_alice.getPrivate(), 2); // signing the $2 output from before at index 2
-        tx3_3.addOutput(1, pk_scrooge.getPublic()); // give 1 back to scrooge
-        tx3_3.addOutput(4, pk_scrooge.getPublic()); // give 4 back to scrooge
+        tx3_3.addInput(tx2.getHash(), 1); // $3 coin
+        tx3_3.addInput(tx2.getHash(), 2); // $2 coin
+        tx3_3.addOutput(1, pk_scrooge.getPublic()); // give $1 back to scrooge
+        tx3_3.addOutput(4, pk_scrooge.getPublic()); // give $4 back to scrooge
+
+        // signing the $3 output from before, where it was at index 1
+        // GOTCHA: its an _input_ here, and thus at index 0
+        safeSign(tx3_3, pk_alice.getPrivate(), 0);
+        safeSign(tx3_3, pk_alice.getPrivate(), 1); // signing the $2 output from before
         return tx3_3;
     }
 

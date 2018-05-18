@@ -102,7 +102,7 @@ public class TxHandler {
             }
         }
 
-        // iterate through all the tx's UTXOs
+        // iterate through all the tx's desired UTXOs (all should be in the pool, since the tx is valid)
         // whenever run into a transactions that tries to spend an already-encountered UTXO,
         // throw it away. The remaining transactions will be mutually consistent and (locally) maximal
 
@@ -129,7 +129,21 @@ public class TxHandler {
             }
         }
 
-        // TODO: uptdate the UTXO pool
+        // update the UTXO pool
+
+        // remove claimed UTXOs...
+        for (UTXO utxo : claimedUTXO) {
+            utxoPool.removeUTXO(utxo);
+        }
+
+        // and add UTXOs corresponding to accepted transactions
+        for (Transaction tx : acceptedTx) {
+            for (int i = 0; i < tx.getOutputs().size(); i++) {
+                UTXO utxo = new UTXO(tx.getHash(), i);
+                Transaction.Output txOutput = tx.getOutput(i);
+                utxoPool.addUTXO(utxo, txOutput);
+            }
+        }
 
         return acceptedTx.toArray(new Transaction[acceptedTx.size()]);
     }
