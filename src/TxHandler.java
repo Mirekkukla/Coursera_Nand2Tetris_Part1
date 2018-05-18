@@ -86,35 +86,39 @@ public class TxHandler {
      * Handles each epoch by receiving an unordered array of proposed transactions, checking each
      * transaction for correctness, returning a mutually valid array of accepted transactions, and
      * updating the current UTXO pool as appropriate.
+     *
+     * This will NOT process circular transaction references.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
-        // keep looping through the transactions, trying to add new ones, until we can no longer add any
-        Transaction[] succesfullyAdded = new Transaction[0];
-        Transaction[] txToAttemptToAddThisLoop = possibleTxs;
+        List<Transaction> txToReturnAsValid = new ArrayList<>();
 
+        // keep looping through the transactions, trying to add new ones, until we can no longer add any
+        List<Transaction> txToValidateThisIteration = Arrays.asList(possibleTxs);
         while (true) {
-            Transaction[] addedOnThisIteration = handleTxsLoop(txToAttemptToAddThisLoop);
-            if (addedOnThisIteration.length == 0) {
+            List<Transaction> validatedThisIteration = handleTxsLoop(txToValidateThisIteration);
+
+            // if nothing new was validated this iteration, we're done
+            if (validatedThisIteration.size() == 0) {
                 break;
             }
 
-            Set<Transaction> txToAttemptNextLoopSet = new HashSet<>(Arrays.asList(txToAttemptToAddThisLoop));
-            for (Transaction tx : addedOnThisIteration) {
-                Transaction[] newSuccestullyAddedArr = Arrays.copyOf(succesfullyAdded, succesfullyAdded.length + 1);
-                newSuccestullyAddedArr[succesfullyAdded.length] = tx;
-                succesfullyAdded = newSuccestullyAddedArr; // point at the appended-item array
-                txToAttemptNextLoopSet.remove(tx);
-            }
-            txToAttemptToAddThisLoop = txToAttemptNextLoopSet.toArray(
-                    new Transaction[txToAttemptNextLoopSet.size()]);
+            // anything newly validated goes into our global list of validated tx
+            txToReturnAsValid.addAll(validatedThisIteration);
 
+            // remove newly validated stuff from our list of not-yet-validated transaction
+            // (these might be found to be valid next iteration, insofar as they might depend on
+            // transactions we marked as valid _this_ iteration).
+            Set<Transaction> txToAttemptNextIteration = new HashSet<>(txToValidateThisIteration);
+            txToAttemptNextIteration.removeAll(validatedThisIteration);
+            txToValidateThisIteration = new ArrayList<>(txToAttemptNextIteration);
         }
-        return succesfullyAdded;
+        return txToReturnAsValid.toArray(new Transaction[0]);
     }
 
     // do one iteration loop through the given transactions to see how many of them we can
-    // process
-    public Transaction[] handleTxsLoop(Transaction[] possibleTxs) {
+    // process, given the current UTXO pool. Note that processing one block might involve calling
+    // this method multiple times, so that we can process transactions that reference each other
+    public List<Transaction> handleTxsLoop(List<Transaction> possibleTxs) {
         // get all transactions that are valid on their own
         List<Transaction> validInIsolationTx = new ArrayList<>();
         for (Transaction tx : possibleTxs) {
@@ -166,7 +170,7 @@ public class TxHandler {
             }
         }
 
-        return acceptedTx.toArray(new Transaction[acceptedTx.size()]);
+        return acceptedTx;
     }
 
 }
