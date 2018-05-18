@@ -1,8 +1,5 @@
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class TxHandler {
@@ -91,6 +88,33 @@ public class TxHandler {
      * updating the current UTXO pool as appropriate.
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
+        // keep looping through the transactions, trying to add new ones, until we can no longer add any
+        Transaction[] succesfullyAdded = new Transaction[0];
+        Transaction[] txToAttemptToAddThisLoop = possibleTxs;
+
+        while (true) {
+            Transaction[] addedOnThisIteration = handleTxsLoop(txToAttemptToAddThisLoop);
+            if (addedOnThisIteration.length == 0) {
+                break;
+            }
+
+            Set<Transaction> txToAttemptNextLoopSet = new HashSet<>(Arrays.asList(txToAttemptToAddThisLoop));
+            for (Transaction tx : addedOnThisIteration) {
+                Transaction[] newSuccestullyAddedArr = Arrays.copyOf(succesfullyAdded, succesfullyAdded.length + 1);
+                newSuccestullyAddedArr[succesfullyAdded.length] = tx;
+                succesfullyAdded = newSuccestullyAddedArr; // point at the appended-item array
+                txToAttemptNextLoopSet.remove(tx);
+            }
+            txToAttemptToAddThisLoop = txToAttemptNextLoopSet.toArray(
+                    new Transaction[txToAttemptNextLoopSet.size()]);
+
+        }
+        return succesfullyAdded;
+    }
+
+    // do one iteration loop through the given transactions to see how many of them we can
+    // process
+    public Transaction[] handleTxsLoop(Transaction[] possibleTxs) {
         // get all transactions that are valid on their own
         List<Transaction> validInIsolationTx = new ArrayList<>();
         for (Transaction tx : possibleTxs) {
