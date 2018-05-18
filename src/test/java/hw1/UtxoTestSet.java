@@ -131,8 +131,8 @@ public class UtxoTestSet {
         }
 
         /**
-         * number of tx per test
-         * @param txNumberPerTest number of tx per test
+         * number of intialTx per test
+         * @param txNumberPerTest number of intialTx per test
          * @return this builder
          */
         public UtxoTestSetBuilder setTxPerTest(final int txNumberPerTest) {
@@ -332,7 +332,7 @@ public class UtxoTestSet {
         for (int i = 0; i < utxoTxNumber; i++) {
             int num = maxUtxoTxOutput;
             Transaction tx = createTxWithOutputs(people, maxValue, keyPairAtIndex, num);
-            // add all tx outputs to utxo pool
+            // add all intialTx outputs to utxo pool
             addTxOutputsToPool(utxoPool, keyPairAtIndex, utxoToKeyPair, num, tx);
         }
         return utxoPool;
