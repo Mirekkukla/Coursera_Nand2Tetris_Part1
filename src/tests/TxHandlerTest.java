@@ -47,6 +47,17 @@ class TxHandlerTest {
         testHandling(handler, new Main.Tx[]{tx3_3}, new Main.Tx[]{tx3_3});
     }
 
+    @Test
+    void testTxThatDependsOnOtherTxIsCorrectInIsolation() {
+        TxHandler handler = getHandlerAfterTx2();
+        Main.Tx tx3_3 = getTx3_3();
+        handler.handleTxs(new Main.Tx[]{tx3_3}); // make sure tx3_3 is in the pool, as tx3_4 depends on it
+
+        // 3_4: 4 (scrooge from second part of 3_3 transaction) -> 2,2 (scrooge)
+        Main.Tx tx3_4 = getTx3_4(tx3_3);
+        testHandling(handler, new Main.Tx[]{tx3_4}, new Main.Tx[]{tx3_4});
+    }
+
     // both tx double-spend the same 5 coin, only the first should validate
     @Test
     void testSimpleDoubleSpending() {
@@ -78,6 +89,16 @@ class TxHandlerTest {
         Main.Tx[] txsToHandle = {tx3_1, tx3_2, tx3_3};
         Main.Tx[] expectedTxs = {tx3_1, tx3_3};
         testHandling(handler, txsToHandle, expectedTxs);
+    }
+
+    // tx3_4 depends on tx3_3; make sure we can process both in the same block
+    @Test void testTxDependencyWithinBlock() {
+        TxHandler handler = getHandlerAfterTx2();
+        // 3_3: 2,3 (alice) -> 1,4 (scrooge)
+        Main.Tx tx3_3 = getTx3_3();
+        // 3_4: 4 (scrooge from second part of 3_3 transaction) -> 2,2 (scrooge)
+        Main.Tx tx3_4 = getTx3_4(tx3_3);
+        testHandling(handler, new Main.Tx[]{tx3_3, tx3_4}, new Main.Tx[]{tx3_3, tx3_4});
     }
 
     // CONTRUCTOR HELPERS
@@ -125,7 +146,7 @@ class TxHandlerTest {
         return tx3_2;
     }
 
-    // give scrooge the 3 and 2 coins; legal
+    // give scrooge the 3 and 2 coins in the form of a 1 and 4 coin
     private Main.Tx getTx3_3() {
         Main.Tx tx3_3 = new Main.Tx();
         tx3_3.addInput(tx2.getHash(), 1); // $3 coin
@@ -133,11 +154,22 @@ class TxHandlerTest {
         tx3_3.addOutput(1, pk_scrooge.getPublic()); // give $1 back to scrooge
         tx3_3.addOutput(4, pk_scrooge.getPublic()); // give $4 back to scrooge
 
-        // signing the $3 output from before, where it was at index 1
-        // GOTCHA: its an _input_ here, and thus at index 0
+        // signing the $3 and $2 outputs from before, where they were at indices 1 and 2
+        // GOTCHA: they're an _input_, and thus at indices 0 and 1
         safeSign(tx3_3, pk_alice.getPrivate(), 0);
         safeSign(tx3_3, pk_alice.getPrivate(), 1); // signing the $2 output from before
         return tx3_3;
+    }
+
+    // references tx_3_3: scrooge gives the 4 coin he just got back to alice in the form of two 2 coins
+    private Main.Tx getTx3_4(Main.Tx tx3_3) {
+        Main.Tx tx3_4 = new Main.Tx();
+        tx3_4.addInput(tx3_3.getHash(), 1);
+        tx3_4.addOutput(2, pk_alice.getPublic());
+        tx3_4.addOutput(2, pk_alice.getPublic());
+
+        safeSign(tx3_4, pk_scrooge.getPrivate(), 0);
+        return tx3_4;
     }
 
     // OTHER HELPERS
