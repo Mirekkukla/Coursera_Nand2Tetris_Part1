@@ -1,4 +1,11 @@
+# mac folder metadata #
 .DS_Store
+
+# assignments submissions #
 *.zip
+
+# some kind of binary metadata #
 *.dat
-*.out # don't change output files
+
+# script run output files #
+*.out
