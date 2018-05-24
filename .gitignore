@@ -1,2 +1,4 @@
 .DS_Store
 *.zip
+*.dat
+*.out # don't change output files
