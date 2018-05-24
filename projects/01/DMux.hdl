@@ -7,6 +7,26 @@
  * Demultiplexor:
  * {a, b} = {in, 0} if sel == 0
  *          {0, in} if sel == 1
+ *
+ * Model as:
+ * (NOT(s) -> {a=in, b=0}) AND (s -> {a=0, b=in})
+ * Treat the two outputs separately
+ *
+ *
+ * [output into a]
+ * (NOT(s) -> in) AND (s -> 0)
+ * =>
+ * (s OR in) AND (NOT(s))
+ * =>
+ * in AND NOT(s)
+ *
+ *
+ * [output into b]
+ * (NOT(s) -> 0) AND (s -> in)
+ * =>
+ * (s) AND (NOT(s) OR in)
+ * =>
+ *  s AND in
  */
 
 CHIP DMux {
@@ -14,5 +34,7 @@ CHIP DMux {
     OUT a, b;
 
     PARTS:
-    // Put your code here:
+        Not(in=sel, out=notSel);
+        And(a=in, b=notSel, out=a);
+        And(a=sel, b=in, out=b);
 }
