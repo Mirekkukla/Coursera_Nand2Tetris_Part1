@@ -16,5 +16,12 @@ CHIP DMux4Way {
     OUT a, b, c, d;
 
     PARTS:
-    // Put your code here:
+        // pin names can't start with a number?? WTF??
+        DMux(in=in, sel=sel[0], a=x1or3, b=x2or4);
+        DMux(in=in, sel=sel[1], a=x1or2, b=x3or4);
+
+        And(a=x1or2, b=x1or3, out=a);
+        And(a=x1or2, b=x2or4, out=b);
+        And(a=x1or3, b=x3or4, out=c);
+        And(a=x2or4, b=x3or4, out=d);
 }
