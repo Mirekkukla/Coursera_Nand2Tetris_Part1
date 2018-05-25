@@ -16,5 +16,16 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-    // Put your code here:
+        // using the leading selector bit as indicator variable
+        // tells us if we're dealing with the top 4 lines or bottom 4
+        // and can be used to "zero out" values accordingly
+
+        // first 4 outputs (all zero if leading selector bit is 1)
+        Not(in=sel[2], out=flippedLeadingBit);
+        And(a=flippedLeadingBit, b=in, out=inValueForFirst4);
+        DMux4Way(in=inValueForFirst4, sel=sel[0..1], a=a, b=b, c=c, d=d);
+
+        // second 4 outputs (all zero if leading selector bit is 0)
+        And(a=sel[2], b=in, out=inValueForSecond4);
+        DMux4Way(in=inValueForSecond4, sel=sel[0..1], a=e, b=f, c=g, d=h);
 }
