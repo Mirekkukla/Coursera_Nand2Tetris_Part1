@@ -61,7 +61,13 @@ CHIP ALU {
         And16(a=xAfterNx, b=yAfterNy, out=fAnds);
         Mux16(a=fAnds, b=fAdds, sel=f, out=afterF);
 
-        // no
+        // no (and ng); store upper and lower output separate to help calc zr
         Not16(in=afterF, out=negatedAfterF);
-        Mux16(a=afterF, b=negatedAfterF, sel=no, out=out);
+        Mux16(a=afterF, b=negatedAfterF, sel=no, out=out, out[0..7]=lowerOutput, out[8..15]=upperOutput, out[15]=ng);
+
+        // zr
+        Or8Way(in=lowerOutput, out=lowerOutputOrd);
+        Or8Way(in=upperOutput, out=upperOutputOrd);
+        Or(a=lowerOutputOrd, b=upperOutputOrd, out=zeroOnlyIfOutIsZero);
+        Not(in=zeroOnlyIfOutIsZero, out=zr);
 }
