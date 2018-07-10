@@ -15,52 +15,7 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-    	// STEP 1: determine which of the 8 registers we want to use
-
-    	Not(in=address[0], out=notAddr0);
-    	Not(in=address[1], out=notAddr1);
-    	Not(in=address[2], out=notAddr2);
-  
-  		// leading bit is 0, next bit is 0
-  		And(a=notAddr0, b=notAddr1, out=noAddr2NoAddr1);
-    	And(a=noAddr2NoAddr1, b=notAddr0, out=useReg0); // address is 000
-    	And(a=noAddr2NoAddr1, b=address[0], out=useReg1); // address is 001
-
-    	// leading bit is 0, next bit is 1
-    	And(a=notAddr2, b=address[1], out=noAddr2YesAddr1);
-    	And(a=noAddr2YesAddr1, b=notAddr0, out=useReg2); // address is 010
-    	And(a=noAddr2YesAddr1, b=address[0], out=useReg3); // address is 011
-
-    	// leading bit is 1, next bit is 0
-    	And(a=address[2], b=notAddr1, out=yesAddr2NoAddr1);
-    	And(a=yesAddr2NoAddr1, b=notAddr0, out=useReg4); // address is 100
-    	And(a=yesAddr2NoAddr1, b=address[0], out=useReg5); // address is 101
-
-		// leading bit is 1, next bit is 1
-    	And(a=address[2], b=address[1], out=yesAddr2YesAddr1);
-    	And(a=yesAddr2YesAddr1, b=notAddr0, out=useReg6); // address is 110
-    	And(a=yesAddr2YesAddr1, b=address[0], out=useReg7); // address is 111
-
-
-		// STEP 2: feed input into all registers, but only load based on address determined in step 1
-		// (similarly for determining whether to output a given registers' value)
-
-		And(a=load, b=useReg0, out=load0);
-		And(a=load, b=useReg1, out=load1);
-		And(a=load, b=useReg2, out=load2);
-		And(a=load, b=useReg3, out=load3);
-		And(a=load, b=useReg4, out=load4);
-		And(a=load, b=useReg5, out=load5);
-		And(a=load, b=useReg6, out=load6);
-		And(a=load, b=useReg7, out=load7);
-
-		Register(in=in, load=load0, out=out0); // register 1
-		And()
-
-
-		// START FROM SCRATCH USING DMUX8WAY
-
-		DMux8Way(in=in, sel=address, a=useReg0, b=useReg1, c=useReg2, d=useReg3, e=useReg4, f=useReg5, g=useReg6, h=useReg7);
+		DMux8Way(in=true, sel=address, a=useReg0, b=useReg1, c=useReg2, d=useReg3, e=useReg4, f=useReg5, g=useReg6, h=useReg7);
 
 		And(a=load, b=useReg0, out=load0);
 		And(a=load, b=useReg1, out=load1);
@@ -80,5 +35,5 @@ CHIP RAM8 {
 		Register(in=in, load=load6, out=outReg6); // register 6
 		Register(in=in, load=load7, out=outReg7); // register 7
 
-		Mux8Way16(a=outReg0, b=outReg1, c=outReg2, d=outReg3, e=outReg4, f=outReg5, g=outReg6, h=outReg7, sel=address, out=out)
+		Mux8Way16(a=outReg0, b=outReg1, c=outReg2, d=outReg3, e=outReg4, f=outReg5, g=outReg6, h=outReg7, sel=address, out=out);
 }
