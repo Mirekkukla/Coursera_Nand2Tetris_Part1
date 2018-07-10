@@ -16,5 +16,20 @@ CHIP PC {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    	// First figure out the value we want for the next round (even if its "unchanged")
+  		// Candidate values are considered in order if priority
+  		// IE keeping the value unchanged is the lowest priority, and reseting is the highest
+  
+		// initialize to using the existing value
+		// increment it if appropriate
+		Inc16(in=registerOut, out=registerIncremented);
+		Mux16(a=registerOut, b=registerIncremented, sel=inc, out=desiredRegValPriorToLoadCheck);
+
+		// load condition overrules incremented value
+		Mux16(a=desiredRegValPriorToLoadCheck, b=in, sel=load, out=desiredRegValPriorToResetCheck);
+
+		// the reset condition overrules all
+    	Mux16(a=desiredRegValPriorToResetCheck, b=false, sel=reset, out=registerInput);
+    	Register(in=registerInput, load=true, out=out); // output the current round value
+    	Register(in=registerInput, load=true, out=registerOut); // for feedback
 }
