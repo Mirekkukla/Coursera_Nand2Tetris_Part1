@@ -15,5 +15,20 @@ CHIP RAM16K {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    	// upper 2 bits of address indicate which RAM4k to use, lower 12 indicate position in that guy
+    	// NOTE: unlike earlier composite ram, we're only using 4 (not 8) inner ram building blocks
+
+    	DMux4Way(in=true, sel=address[12..13], a=useInnerRam0, b=useInnerRam1, c=useInnerRam2, d=useInnerRam3);
+
+		And(a=load, b=useInnerRam0, out=load0);
+		And(a=load, b=useInnerRam1, out=load1);
+		And(a=load, b=useInnerRam2, out=load2);
+		And(a=load, b=useInnerRam3, out=load3);
+
+    	RAM4K(in=in, load=load0, address=address[0..11], out=outInnerRam0);
+    	RAM4K(in=in, load=load1, address=address[0..11], out=outInnerRam1);
+    	RAM4K(in=in, load=load2, address=address[0..11], out=outInnerRam2);
+    	RAM4K(in=in, load=load3, address=address[0..11], out=outInnerRam3);
+
+    	Mux4Way16(a=outInnerRam0, b=outInnerRam1, c=outInnerRam2, d=outInnerRam3, sel=address[12..13], out=out);
 }
