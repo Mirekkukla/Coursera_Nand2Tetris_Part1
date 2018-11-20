@@ -15,25 +15,16 @@ CHIP RAM8 {
     OUT out[16];
 
     PARTS:
-		DMux8Way(in=true, sel=address, a=useReg0, b=useReg1, c=useReg2, d=useReg3, e=useReg4, f=useReg5, g=useReg6, h=useReg7);
+		DMux8Way(in=load, sel=address, a=loadReg0, b=loadReg1, c=loadReg2, d=loadReg3, e=loadReg4, f=loadReg5, g=loadReg6, h=loadReg7);
 
-		And(a=load, b=useReg0, out=load0);
-		And(a=load, b=useReg1, out=load1);
-		And(a=load, b=useReg2, out=load2);
-		And(a=load, b=useReg3, out=load3);
-		And(a=load, b=useReg4, out=load4);
-		And(a=load, b=useReg5, out=load5);
-		And(a=load, b=useReg6, out=load6);
-		And(a=load, b=useReg7, out=load7);
-
-		Register(in=in, load=load0, out=outReg0); // register 0
-		Register(in=in, load=load1, out=outReg1); // register 1
-		Register(in=in, load=load2, out=outReg2); // register 2
-		Register(in=in, load=load3, out=outReg3); // register 3
-		Register(in=in, load=load4, out=outReg4); // register 4
-		Register(in=in, load=load5, out=outReg5); // register 5
-		Register(in=in, load=load6, out=outReg6); // register 6
-		Register(in=in, load=load7, out=outReg7); // register 7
+		Register(in=in, load=loadReg0, out=outReg0); // register 0
+		Register(in=in, load=loadReg1, out=outReg1); // register 1
+		Register(in=in, load=loadReg2, out=outReg2); // register 2
+		Register(in=in, load=loadReg3, out=outReg3); // register 3
+		Register(in=in, load=loadReg4, out=outReg4); // register 4
+		Register(in=in, load=loadReg5, out=outReg5); // register 5
+		Register(in=in, load=loadReg6, out=outReg6); // register 6
+		Register(in=in, load=loadReg7, out=outReg7); // register 7
 
 		Mux8Way16(a=outReg0, b=outReg1, c=outReg2, d=outReg3, e=outReg4, f=outReg5, g=outReg6, h=outReg7, sel=address, out=out);
 }
