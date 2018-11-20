@@ -18,26 +18,16 @@ CHIP RAM64 {
     	// upper 3 bits of address indicate which RAM8 to use, lower 3 indicate position in that guy
     	// otherwise the same logic as RAM8
 
-    	DMux8Way(in=true, sel=address[3..5], a=useInnerRam0, b=useInnerRam1, c=useInnerRam2, d=useInnerRam3, e=useInnerRam4, f=useInnerRam5, g=useInnerRam6, h=useInnerRam7);
+    	DMux8Way(in=load, sel=address[3..5], a=loadInnerRam0, b=loadInnerRam1, c=loadInnerRam2, d=loadInnerRam3, e=loadInnerRam4, f=loadInnerRam5, g=loadInnerRam6, h=loadInnerRam7);
 
-		And(a=load, b=useInnerRam0, out=load0);
-		And(a=load, b=useInnerRam1, out=load1);
-		And(a=load, b=useInnerRam2, out=load2);
-		And(a=load, b=useInnerRam3, out=load3);
-		And(a=load, b=useInnerRam4, out=load4);
-		And(a=load, b=useInnerRam5, out=load5);
-		And(a=load, b=useInnerRam6, out=load6);
-		And(a=load, b=useInnerRam7, out=load7);
-
-
-    	RAM8(in=in, load=load0, address=address[0..2], out=outInnerRam0);
-    	RAM8(in=in, load=load1, address=address[0..2], out=outInnerRam1);
-    	RAM8(in=in, load=load2, address=address[0..2], out=outInnerRam2);
-    	RAM8(in=in, load=load3, address=address[0..2], out=outInnerRam3);
-    	RAM8(in=in, load=load4, address=address[0..2], out=outInnerRam4);
-    	RAM8(in=in, load=load5, address=address[0..2], out=outInnerRam5);
-    	RAM8(in=in, load=load6, address=address[0..2], out=outInnerRam6);
-    	RAM8(in=in, load=load7, address=address[0..2], out=outInnerRam7);
+    	RAM8(in=in, load=loadInnerRam0, address=address[0..2], out=outInnerRam0);
+    	RAM8(in=in, load=loadInnerRam1, address=address[0..2], out=outInnerRam1);
+    	RAM8(in=in, load=loadInnerRam2, address=address[0..2], out=outInnerRam2);
+    	RAM8(in=in, load=loadInnerRam3, address=address[0..2], out=outInnerRam3);
+    	RAM8(in=in, load=loadInnerRam4, address=address[0..2], out=outInnerRam4);
+    	RAM8(in=in, load=loadInnerRam5, address=address[0..2], out=outInnerRam5);
+    	RAM8(in=in, load=loadInnerRam6, address=address[0..2], out=outInnerRam6);
+    	RAM8(in=in, load=loadInnerRam7, address=address[0..2], out=outInnerRam7);
 
     	Mux8Way16(a=outInnerRam0, b=outInnerRam1, c=outInnerRam2, d=outInnerRam3, e=outInnerRam4, f=outInnerRam5, g=outInnerRam6, h=outInnerRam7, sel=address[3..5], out=out);
 }
