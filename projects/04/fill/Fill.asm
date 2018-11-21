@@ -30,7 +30,7 @@
 //  OUTER_LOOP:
 //    if row >= 256 goto OUTER_STOP
 //    INNER_LOOP:
-//      if col >=512 goto INNER_STOP
+//      if col >= 32 goto INNER_STOP
 //      col += 1
 //      SCREEN[word] = -1
 //      word += 1
@@ -58,26 +58,41 @@
   @row
   D=M
   @256
-  D=D-A // D is holding row - 256
-  
+  D=D-A // D holding 'row - 256'
   @OUTER_STOP
-  D;JGE // row - 256 < 0
+  D;JGE // row - 256 >= 0
 
-  // make row dark
-  @word
-  A=M
-  M=-1
+  (INNER_LOOP)
+    @col
+    D=M
+    @32
+    D=D-A // D holding 'col - 32'
+    @INNER_STOP
+    D;JGE // col - 32 >= 0
 
-  // temp increment word
-  @word
-  M=M+1
+    @col
+    M=M+1
 
-  // temp increment row count
-  @row
-  M=M+1
+    // make word dark
+    @word
+    A=M
+    M=-1
 
-  @OUTER_LOOP
-  0;JMP
+    @word
+    M=M+1
+
+    @INNER_LOOP
+    0;JMP
+
+  (INNER_STOP)
+    @col
+    M=0
+
+    @row
+    M=M+1
+    
+    @OUTER_LOOP
+    0;JMP
 
 (OUTER_STOP)
   // nothing for now
