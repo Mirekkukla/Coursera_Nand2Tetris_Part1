@@ -1,11 +1,14 @@
-# mac folder metadata #
+# mac folder metadata
 .DS_Store
 
-# assignments submissions #
+# assignments submissions
 *.zip
 
-# some kind of binary metadata #
+# some kind of binary metadata
 *.dat
 
-# script run output files #
+# script run output files
 *.out
+
+# assembled machine code files
+*.hack
