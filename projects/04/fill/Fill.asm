@@ -13,35 +13,57 @@
 
 // PSEUDO-CODE
 //
+//  KEYBOARD_LOOP:
+//    screen_color = black
+//    if (any key pressed) goto COLOR_SCREEN
+//    screen_color = white
+//    if (no key pressed) COLOR_SCREEN
+//    goto KEYBOARD_LOOP
+// 
+//  COLOR_SCREEN:
 //
-//  LOOP:
-//    if (any key pressed) goto BLACKEN_SCREEN
-//    (make screen white)
-//    goto LOOP
-//  BLACKEN_SCREEN:
-//    (blacken the screen)
-//    goto LOOP
-
-//  PSEUDOCODE for darkening screen
 //  row = 0
 //  col = 0
 //  word = @SCREEN // pointer to location
 //
-//  OUTER_LOOP:
-//    if row >= 256 goto OUTER_STOP
-//    INNER_LOOP:
-//      if col >= 32 goto INNER_STOP
+//  OUTER_SCREEN_LOOP:
+//    if row >= 256 goto OUTER_SCREEN_STOP
+//    INNER_SCREEN_LOOP:
+//      if col >= 32 goto INNER_SCREEN_STOP
 //      col += 1
-//      SCREEN[word] = -1
+//      SCREEN[word] = screen_color
 //      word += 1
-//      goto INNER_LOOP
-//    INNER_STOP:
+//      goto INNER_SCREEN_LOOP
+//    INNER_SCREEN_STOP:
 //      col = 0
 //      row += 1  
-//      goto OUTER_LOOP
-//    goto OUTER_LOOP
-//  OUTER_STOP:
-//    //nothing for now, will return to keyboard loop
+//      goto OUTER_SCREEN_LOOP
+//  OUTER_SCREEN_STOP:
+//    goto KEYBOARD_LOOP
+
+(KEYBOARD_LOOP)
+  
+  @screen_color
+  M=-1
+
+  @KBD
+  D=M
+  @COLOR_SCREEN
+  D;JGT
+
+  @screen_color
+  M=0
+
+  @KBD
+  D=M
+  @COLOR_SCREEN
+  D;JEQ
+
+  @KEYBOARD_LOOP
+  0;JMP
+
+
+(COLOR_SCREEN)
 
   @row
   M=0
@@ -54,49 +76,48 @@
   @word
   M=D
 
-(OUTER_LOOP)
+(OUTER_SCREEN_LOOP)
   @row
   D=M
   @256
   D=D-A // D holding 'row - 256'
-  @OUTER_STOP
+  @OUTER_SCREEN_STOP
   D;JGE // row - 256 >= 0
 
-  (INNER_LOOP)
+  (INNER_SCREEN_LOOP)
     @col
     D=M
     @32
     D=D-A // D holding 'col - 32'
-    @INNER_STOP
+    @INNER_SCREEN_STOP
     D;JGE // col - 32 >= 0
 
     @col
     M=M+1
 
-    // make word dark
+    // make word the desired screen color
+    @screen_color
+    D=M
     @word
     A=M
-    M=-1
+    M=D
 
     @word
     M=M+1
 
-    @INNER_LOOP
+    @INNER_SCREEN_LOOP
     0;JMP
 
-  (INNER_STOP)
+  (INNER_SCREEN_STOP)
     @col
     M=0
 
     @row
     M=M+1
     
-    @OUTER_LOOP
+    @OUTER_SCREEN_LOOP
     0;JMP
 
-(OUTER_STOP)
-  // nothing for now
-
-(END)
-  @END
+(OUTER_SCREEN_STOP)
+  @KEYBOARD_LOOP
   0;JMP
