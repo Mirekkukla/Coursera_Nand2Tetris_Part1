@@ -11,4 +11,77 @@
 // "white" in every pixel;
 // the screen should remain fully clear as long as no key is pressed.
 
-// Put your code here.
+// PSEUDO-CODE
+//
+//
+//  LOOP:
+//    if (any key pressed) goto BLACKEN_SCREEN
+//    (make screen white)
+//    goto LOOP
+//  BLACKEN_SCREEN:
+//    (blacken the screen)
+//    goto LOOP
+
+//  PSEUDOCODE for darkening screen
+//  row = 0
+//  col = 0
+//  word = @SCREEN // pointer to location
+//
+//  OUTER_LOOP:
+//    if row >= 256 goto OUTER_STOP
+//    INNER_LOOP:
+//      if col >=512 goto INNER_STOP
+//      col += 1
+//      SCREEN[word] = -1
+//      word += 1
+//      goto INNER_LOOP
+//    INNER_STOP:
+//      col = 0
+//      row += 1  
+//      goto OUTER_LOOP
+//    goto OUTER_LOOP
+//  OUTER_STOP:
+//    //nothing for now, will return to keyboard loop
+
+  @row
+  M=0
+
+  @col
+  M=0
+
+  @SCREEN
+  D=A
+  @word
+  M=D
+
+(OUTER_LOOP)
+  @row
+  D=M
+  @256
+  D=D-A // D is holding row - 256
+  
+  @OUTER_STOP
+  D;JGE // row - 256 < 0
+
+  // make row dark
+  @word
+  A=M
+  M=-1
+
+  // temp increment word
+  @word
+  M=M+1
+
+  // temp increment row count
+  @row
+  M=M+1
+
+  @OUTER_LOOP
+  0;JMP
+
+(OUTER_STOP)
+  // nothing for now
+
+(END)
+  @END
+  0;JMP
