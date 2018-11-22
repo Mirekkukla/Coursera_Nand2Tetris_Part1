@@ -46,26 +46,31 @@ CHIP CPU {
 
     PARTS:
 
+        // -------------------
         // ALU stuff
-    
-        // Load the A register if  (assuming the leading bit of the "dest" chunk is a 1)
-        // - if its an "a" instruction (load the instruction directly)
-        // - if its a "c" instruction and the leading bit of the "dest" chunk is a 1 (load whatever the ALU calculated)
+        // -------------------
+
+        // Instruction names will make for easier to understand code
         Not(a=instruction[15], out=isAInstruction);
+        Not(a=isAInstruction, out=isCInstruction)
+
+    
+        // Load the A register if:
+        // - we have an "a" instruction (load the instruction directly)
+        // - we have a "c" instruction and the leading bit of the "dest" chunk is a 1 (load whatever the ALU calculated)
         Or(a=isAInstruction, b=instruction[5], out=loadARegister);
         Mux16(a=aluOut, b=instruction, sel=isAInstruction, out=aRegisterIn); // if its a c instruction, the ALU decides what the store
         ARegister(in=aRegisterIn, load=loadARegister, out=aRegisterOut);
 
+        // Load the D register iff we have a "c" instruction and the middle bit of the "dest chunk" is 1
+        And(a=isCInstruction, b=instruction[4], out=loadDRegister);
+        DRegister(in=aluOut, load=loadDRegister, out=aluXInput);
 
+        // Decide whether to use the A or M register for our calculations by looking at the leading bit of the "comp" chunk
+        Mux16(a=aRegisterOut, b=inM, sel=instruction[12], out=aluYInput); // 0=register A, 1=register M
 
-        DRegister(in=aluOut, load=loadDRegister, out=aluTop);
-
-        Mux16(a=inM, b=aRegisterOut, sel=?, out=aluBottom);
-
-        ALU(x=aluTop, y=aluBottom, zx=?, nx=?, zy=?, ny=?, f=?, no=?, out=aluOut, zr=?, ng=?);
-
-
-
+        // The [c1 ... c6] digits of the "comp" chunk correspond to [zx ... no] ALU inputs
+        ALU(x=aluXInput, y=aluYInput, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOut, zr=?, ng=?);
 
 
         // Program counter stuff
