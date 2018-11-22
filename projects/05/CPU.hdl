@@ -80,7 +80,7 @@ CHIP CPU {
         Mux16(a=aluOut, b=aluOut, sel=true, out=outM); // is there a more elegent way to simply pass through the alu output?
 
         // Export "address" payload of register A (ie the address of M)
-        Mux16(a=aRegisterOut, b=aluaRegisterOutOut, sel=true, out[0..14]=addressM); // the leftmost bit gets dropped
+        Mux16(a=aRegisterOut, b=aRegisterOut, sel=true, out[0..14]=addressM); // the leftmost bit gets dropped
 
         // Program counter stuff
 
@@ -108,7 +108,5 @@ CHIP CPU {
         // TODO: can we skip the below check and make in be something different?
         And(a=isCInstruction, b=jumpBitsSayJump, out=shouldJump);
 
-        PC(in=?, load=shouldJump, inc=true, reset=reset); // should inc be something else?
-
-
+        PC(in=aRegisterOut, load=shouldJump, inc=true, reset=reset, out[0..14]=pc); // the leftmost bit of register A gets dropped
 }
