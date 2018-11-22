@@ -57,25 +57,58 @@ CHIP CPU {
     
         // Load the A register if:
         // - we have an "a" instruction (load the instruction directly)
-        // - we have a "c" instruction and the leading bit of the "dest" chunk is a 1 (load whatever the ALU calculated)
+        // - we have a "c" instruction and the leftmost bit of the "dest" chunk is a 1 (load whatever the ALU calculated)
         Or(a=isAInstruction, b=instruction[5], out=loadARegister);
         Mux16(a=aluOut, b=instruction, sel=isAInstruction, out=aRegisterIn); // if its a c instruction, the ALU decides what the store
         ARegister(in=aRegisterIn, load=loadARegister, out=aRegisterOut);
 
         // Load the D register iff we have a "c" instruction and the middle bit of the "dest chunk" is 1
         And(a=isCInstruction, b=instruction[4], out=loadDRegister);
-        DRegister(in=aluOut, load=loadDRegister, out=aluXInput);
+        DRegister(in=aluOut, load=loadDRegister, out=dRegisterOut);
 
         // Decide whether to use the A or M register for our calculations by looking at the leading bit of the "comp" chunk
         Mux16(a=aRegisterOut, b=inM, sel=instruction[12], out=aluYInput); // 0=register A, 1=register M
 
+        // The D register serves as the X input; Y input depends on the leading bit of the "comp" chunk (above)
         // The [c1 ... c6] digits of the "comp" chunk correspond to [zx ... no] ALU inputs
-        ALU(x=aluXInput, y=aluYInput, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOut, zr=?, ng=?);
+        ALU(x=dRegisterOut, y=aluYInput, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOut, zr=EQ, ng=LT);
 
+        // TODO: Still need to connect zr and ng
+
+        // Write to the M register iff we have "c" instruction and the rightmost bit of the "dest chunk" is 1
+        And(a=isCInstruction, b=instruction[3], out=writeM);
+        Mux16(a=aluOut, b=aluOut, sel=true, out=outM); // is there a more elegent way to simply pass through the alu output?
+
+        // Export "address" payload of register A (ie the address of M)
+        Mux16(a=aRegisterOut, b=aluaRegisterOutOut, sel=true, out[0..14]=addressM); // the leftmost bit gets dropped
 
         // Program counter stuff
 
-        PC(in=newInstruction, load=loadNewInstruction, inc=true, reset=reset); // should inc be something else?
+        // Decide whether or not a presumed "c" instruction wants us to jump)
+        // TODO: make sure 8 way demux interprests selects in NUMBER increasing order
+        DMux8Way(in=1, sel=instruction[0..2], a=noJump, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=JMP);
+
+        // helper vars for making all the "compared to zero" checks
+        Not(in=EQ, out=NE);
+        Not(in=LT, out=GE);
+        AND(a=GE, b=NE, out=GT);
+        AND(a=LT, b=EQ, out=LE);
+
+        // if a jump condition is requested and condition fullfilled, we jump
+        And(a=JGT, b=GT, out=jump1);
+        And(a=JEQ, b=EQ, out=jump2);
+        And(a=JGE, b=GE, out=jump3);
+        And(a=JLT, b=LT, out=jump4);
+        And(a=JNE, b=NE, out=jump5);
+        And(a=JLE, b=LE, out=jump6);
+
+        // TODO: do we need to attach to all the pins?
+        Or8Way(in[0]=JMP, in[1]=jump1, in[2]=jump2, in[3]=jump3, in[4]=jump4, in[5]=jump5, in[6]=jump6, in[7]=false, out=jumpBitsSayJump);
+
+        // TODO: can we skip the below check and make in be something different?
+        And(a=isCInstruction, b=jumpBitsSayJump, out=shouldJump);
+
+        PC(in=?, load=shouldJump, inc=true, reset=reset); // should inc be something else?
 
 
 }
