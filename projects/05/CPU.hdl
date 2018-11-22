@@ -46,15 +46,14 @@ CHIP CPU {
 
     PARTS:
 
-        // -------------------
+        // ---------------------
         // ALU stuff
-        // -------------------
+        // ---------------------
 
         // Instruction names will make for easier to understand code
         Not(in=instruction[15], out=isAInstruction);
         Not(in=isAInstruction, out=isCInstruction);
 
-    
         // Load the A register if:
         // - we have an "a" instruction (load the instruction directly)
         // - we have a "c" instruction and the leftmost bit of the "dest" chunk is a 1 (load whatever the ALU calculated)
@@ -73,8 +72,6 @@ CHIP CPU {
         // The [c1 ... c6] digits of the "comp" chunk correspond to [zx ... no] ALU inputs
         ALU(x=dRegisterOut, y=aluYInput, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=aluOut, zr=EQ, ng=LT);
 
-        // TODO: Still need to connect zr and ng
-
         // Write to the M register iff we have "c" instruction and the rightmost bit of the "dest chunk" is 1
         And(a=isCInstruction, b=instruction[3], out=writeM);
         Mux16(a=aluOut, b=aluOut, sel=true, out=outM); // is there a more elegent way to simply pass through the alu output?
@@ -82,19 +79,20 @@ CHIP CPU {
         // Export "address" payload of register A (ie the address of M)
         Mux16(a=aRegisterOut, b=aRegisterOut, sel=true, out[0..14]=addressM); // the leftmost bit gets dropped
 
+        // ---------------------
         // Program counter stuff
+        // ---------------------
 
-        // Decide whether or not a presumed "c" instruction wants us to jump)
-        // TODO: make sure 8 way demux interprests selects in NUMBER increasing order
+        // Decide whether or not a presumed "c" instruction wants us to jump
         DMux8Way(in=true, sel=instruction[0..2], a=noJump, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=JMP);
 
-        // helper vars for making all the "compared to zero" checks
+        // Helper vars for all the "compared to zero" jump conditions
         Not(in=EQ, out=NE);
         Not(in=LT, out=GE);
         And(a=GE, b=NE, out=GT);
         Or(a=LT, b=EQ, out=LE);
 
-        // if a jump condition is requested and condition fullfilled, we jump
+        // If a jump is requested and the corresponding condition is fullfilled, we jump
         And(a=JGT, b=GT, out=jump1);
         And(a=JEQ, b=EQ, out=jump2);
         And(a=JGE, b=GE, out=jump3);
@@ -102,10 +100,7 @@ CHIP CPU {
         And(a=JNE, b=NE, out=jump5);
         And(a=JLE, b=LE, out=jump6);
 
-        // TODO: do we need to attach to all the pins?
-        Or8Way(in[0]=JMP, in[1]=jump1, in[2]=jump2, in[3]=jump3, in[4]=jump4, in[5]=jump5, in[6]=jump6, in[7]=false, out=jumpBitsSayJump);
-
-        // TODO: can we skip the below check and make in be something different?
+        Or8Way(in[0]=JMP, in[1]=jump1, in[2]=jump2, in[3]=jump3, in[4]=jump4, in[5]=jump5, in[6]=jump6, out=jumpBitsSayJump);
         And(a=isCInstruction, b=jumpBitsSayJump, out=shouldJump);
 
         PC(in=aRegisterOut, load=shouldJump, inc=true, reset=reset, out[0..14]=pc); // the leftmost bit of register A gets dropped
