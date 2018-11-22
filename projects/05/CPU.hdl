@@ -92,7 +92,7 @@ CHIP CPU {
         Not(in=EQ, out=NE);
         Not(in=LT, out=GE);
         And(a=GE, b=NE, out=GT);
-        And(a=LT, b=EQ, out=LE);
+        Or(a=LT, b=EQ, out=LE);
 
         // if a jump condition is requested and condition fullfilled, we jump
         And(a=JGT, b=GT, out=jump1);
