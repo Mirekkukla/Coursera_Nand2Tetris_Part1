@@ -51,8 +51,8 @@ CHIP CPU {
         // -------------------
 
         // Instruction names will make for easier to understand code
-        Not(a=instruction[15], out=isAInstruction);
-        Not(a=isAInstruction, out=isCInstruction)
+        Not(in=instruction[15], out=isAInstruction);
+        Not(in=isAInstruction, out=isCInstruction);
 
     
         // Load the A register if:
@@ -86,13 +86,13 @@ CHIP CPU {
 
         // Decide whether or not a presumed "c" instruction wants us to jump)
         // TODO: make sure 8 way demux interprests selects in NUMBER increasing order
-        DMux8Way(in=1, sel=instruction[0..2], a=noJump, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=JMP);
+        DMux8Way(in=true, sel=instruction[0..2], a=noJump, b=JGT, c=JEQ, d=JGE, e=JLT, f=JNE, g=JLE, h=JMP);
 
         // helper vars for making all the "compared to zero" checks
         Not(in=EQ, out=NE);
         Not(in=LT, out=GE);
-        AND(a=GE, b=NE, out=GT);
-        AND(a=LT, b=EQ, out=LE);
+        And(a=GE, b=NE, out=GT);
+        And(a=LT, b=EQ, out=LE);
 
         // if a jump condition is requested and condition fullfilled, we jump
         And(a=JGT, b=GT, out=jump1);
