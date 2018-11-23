@@ -83,9 +83,37 @@ def main():
             raise Exception("Binary instruction needs to have 16 bits '{}'".format(binary_instruction))
         converted_lines.append(binary_instruction)
 
-    print converted_lines
+    output_filename = filename[:-4] + ".hack" # change extension from .asm to .hack
+    export_to_file(output_filename, converted_lines)
+    print "ALL DONE"
 
-    # spit out "xxx.hack" file
+# not a contant since we're going to be appending to it
+def get_initial_symbol_table():
+    return {
+        'SP': 0,
+        'LCL': 1,
+        'ARG': 2,
+        'THIS': 3,
+        'THAT': 4,
+        'R0': 0,
+        'R1': 1,
+        'R2': 2,
+        'R3': 3,
+        'R4': 4,
+        'R5': 5,
+        'R6': 6,
+        'R7': 7,
+        'R8': 8,
+        'R9': 9,
+        'R10': 10,
+        'R11': 11,
+        'R12': 12,
+        'R13': 13,
+        'R14': 14,
+        'R15': 15,
+        'SCREEN': 16384,
+        'KBD': 24576
+    }
 
 
 def extract_labels(lines, symbol_table):
@@ -101,7 +129,7 @@ def extract_labels(lines, symbol_table):
         if line[0] == '(' and line[-1] == ')':
             label_name = line[1:-1]
             if label_name in symbol_table:
-                print "ERROR: dublicate label {} in table".format(label_name)
+                raise Exception("dublicate label {} in table".format(label_name))
 
             # since label lines don't get a line number, we're effectively storing the
             # 'line number' of the _following_ line
@@ -209,7 +237,6 @@ def get_dest_bits(line):
     if len(split_for_dest) != 2:
         return "000"
     dest_condition = split_for_dest[0]
-    print line
     return DEST_MAP[dest_condition]
 
 
@@ -220,7 +247,6 @@ def get_comp_bits(line):
     """
     line_without_jump_command = line.split(';')[0] # strip the optional ';jump' suffix
     comp_command = line_without_jump_command.split('=')[-1] # strip the optional 'dest=' prefix
-    print comp_command
     if 'M' in comp_command:
         return '1' + COMP_MAP_WITH_M[comp_command]
     return '0' + COMP_MAP_WITH_A[comp_command]
@@ -238,33 +264,12 @@ def get_padded_bin_string(int_value):
     return unpadded_bin_string.zfill(16) # pad left with zeroes
 
 
-# not a contant since we're going to be appending to it
-def get_initial_symbol_table():
-    return {
-        'SP': 0,
-        'LCL': 1,
-        'ARG': 2,
-        'THIS': 3,
-        'THAT': 4,
-        'R0': 0,
-        'R1': 1,
-        'R2': 2,
-        'R3': 3,
-        'R4': 4,
-        'R5': 5,
-        'R6': 6,
-        'R7': 7,
-        'R8': 8,
-        'R9': 9,
-        'R10': 10,
-        'R11': 11,
-        'R12': 12,
-        'R13': 13,
-        'R14': 14,
-        'R15': 15,
-        'SCREEN': 16384,
-        'KBD': 24576
-    }
+def export_to_file(filename, converted_lines):
+    """ Write the given list of string out the given filename, one string per line """
+    print "Writing to {}".format(filename)
+    with open(filename, 'w') as f:
+        for line in converted_lines:
+            f.write(line + '\n')
 
 
 if __name__ == "__main__":
