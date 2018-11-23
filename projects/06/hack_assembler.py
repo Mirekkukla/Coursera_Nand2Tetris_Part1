@@ -1,4 +1,5 @@
 import argparse
+import os
 
 JUMP_MAP = {
     'JGT': '001',
@@ -48,6 +49,7 @@ COMP_MAP_WITH_M = {
     'M+1': '110111',
     'M-1': '110010',
     'D+M': '000010',
+    'M+D': '000010', # added this cause my proj 4 code uses it, technically not part of spec
     'D-M': '010011',
     'M-D': '000111',
     'D&M': '000000',
@@ -56,11 +58,13 @@ COMP_MAP_WITH_M = {
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("filename", help="name of input .asm file")
+    parser.add_argument("source_file_path", help="absolute or relative path of .asm file, e.g. '../blah.asm'")
+    parser.add_argument("-d", "--dest", default=".", help="path of destination folder for .hack file, default is '.'")
     args = parser.parse_args()
-    filename = args.filename
+    file_path_str = args.source_file_path
+    dest_folder_path_str = args.dest
 
-    lines = load_file(filename)
+    lines = load_file(file_path_str)
     clean_lines = cleanup_lines(lines)
 
     symbol_table = get_initial_symbol_table()
@@ -77,14 +81,13 @@ def main():
                 binary_instruction = convert_symbol(line, symbol_table, next_address_to_allocate)
                 next_address_to_allocate += 1
         else:
-            binary_instruction = convert_c_instruction(line, symbol_table)
+            binary_instruction = convert_c_instruction(line)
 
         if len(binary_instruction) != 16:
             raise Exception("Binary instruction needs to have 16 bits '{}'".format(binary_instruction))
         converted_lines.append(binary_instruction)
 
-    output_filename = filename[:-4] + ".hack" # change extension from .asm to .hack
-    export_to_file(output_filename, converted_lines)
+    export_to_file(file_path_str, dest_folder_path_str, converted_lines)
     print "ALL DONE"
 
 # not a contant since we're going to be appending to it
@@ -141,14 +144,14 @@ def extract_labels(lines, symbol_table):
     return non_label_lines
 
 
-def load_file(filename):
+def load_file(file_path_str):
     """ Load file with given ".asm" filename, return list of lines"""
-    if not filename.split('.')[-1] == "asm":
-        raise Exception("filename has to end in '.asm', you gave '{}'".format(filename))
+    if not file_path_str.split('.')[-1] == "asm":
+        raise Exception("filename has to end in '.asm', you gave '{}'".format(file_path_str))
 
-    print "Loading file '{}'".format(filename)
+    print "Loading file '{}'".format(file_path_str)
     lines = []
-    with open(filename) as f:
+    with open(os.path.abspath(file_path_str)) as f:
         for line in f:
             lines.append(line.strip('\r\n'))
 
@@ -204,7 +207,7 @@ def convert_symbol(line, symbol_table, next_address_to_allocate):
     return get_padded_bin_string(symbol_int_value)
 
 
-def convert_c_instruction(line, symbol_table):
+def convert_c_instruction(line):
     """
     Convert the given c-instruction into its HACK machine language representation
     Return the resulting string of 1s and 0s (of length 16)
@@ -264,10 +267,14 @@ def get_padded_bin_string(int_value):
     return unpadded_bin_string.zfill(16) # pad left with zeroes
 
 
-def export_to_file(filename, converted_lines):
+def export_to_file(file_path_str, dest_folder_path_str, converted_lines):
     """ Write the given list of string out the given filename, one string per line """
-    print "Writing to {}".format(filename)
-    with open(filename, 'w') as f:
+    input_filename = os.path.basename(file_path_str)
+    output_filename = input_filename[:-4] + ".hack" # change extension from .asm to .hack
+    output_filepath = os.path.join(os.path.abspath(dest_folder_path_str), output_filename)
+
+    print "Writing to {}".format(output_filepath)
+    with open(output_filepath, 'w') as f:
         for line in converted_lines:
             f.write(line + '\n')
 
