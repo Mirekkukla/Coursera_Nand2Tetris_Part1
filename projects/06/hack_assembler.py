@@ -1,5 +1,59 @@
 import argparse
 
+JUMP_MAP = {
+    'JGT': '001',
+    'JEQ': '010',
+    'JGE': '011',
+    'JLT': '100',
+    'JNE': '101',
+    'JLE': '110',
+    'JMP': '111'
+}
+
+DEST_MAP = {
+    'M': '001',
+    'D': '010',
+    'MD': '011',
+    'A': '100',
+    'AM': '101',
+    'AD': '110',
+    'AMD': '111'
+}
+
+COMP_MAP_WITH_A = {
+    '0': '101010',
+    '1': '111111',
+    '-1': '111010',
+    'D': '001100',
+    'A': '110000',
+    '!D': '001101',
+    '!A': '11000M',
+    '-D': '001111',
+    '-A': '110011',
+    'D+1': '011111',
+    'A+1': '110111',
+    'D-1': '001110',
+    'A-1': '110010',
+    'D+A': '000010',
+    'D-A': '010011',
+    'A-D': '000111',
+    'D&A': '000000',
+    'D|A': '010101'
+}
+
+COMP_MAP_WITH_M = {
+    'M': '110000',
+    '!M': '11000M',
+    '-M': '110011',
+    'M+1': '110111',
+    'M-1': '110010',
+    'D+M': '000010',
+    'D-M': '010011',
+    'M-D': '000111',
+    'D&M': '000000',
+    'D|M': '010101'
+}
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("filename", help="name of input .asm file")
@@ -15,20 +69,24 @@ def main():
     converted_lines = []
     next_address_to_allocate = 16
     for line in label_free_lines:
+        binary_instruction = None
         if line[0] == '@':
             if line[1:].isdigit():
-                binary_a_instruction = convert_a_instruction(line)
-                converted_lines.append(binary_a_instruction)
+                binary_instruction = convert_a_instruction(line)
             else:
-                binary_symbol_instruction = convert_symbol(line, symbol_table, next_address_to_allocate)
-                converted_lines.append(binary_symbol_instruction)
+                binary_instruction = convert_symbol(line, symbol_table, next_address_to_allocate)
                 next_address_to_allocate += 1
         else:
-            convert_c_instruction(line, symbol_table, next_address_to_allocate)
+            binary_instruction = convert_c_instruction(line, symbol_table)
+
+        if len(binary_instruction) != 16:
+            raise Exception("Binary instruction needs to have 16 bits '{}'".format(binary_instruction))
+        converted_lines.append(binary_instruction)
 
     print converted_lines
 
     # spit out "xxx.hack" file
+
 
 def extract_labels(lines, symbol_table):
     """
@@ -68,6 +126,7 @@ def load_file(filename):
 
     return lines
 
+
 def cleanup_lines(lines):
     """ Trim all whitespace the given lines (removing lines that are only whitespace) """
     clean_lines = []
@@ -93,6 +152,7 @@ def convert_a_instruction(line):
 
     return get_padded_bin_string(int(number_str))
 
+
 def convert_symbol(line, symbol_table, next_address_to_allocate):
     """
     Convert the given symbol line into a-instruction using the given symbol table
@@ -116,17 +176,55 @@ def convert_symbol(line, symbol_table, next_address_to_allocate):
     return get_padded_bin_string(symbol_int_value)
 
 
-def convert_c_instruction(line, symbol_table, next_address_to_allocate):
+def convert_c_instruction(line, symbol_table):
     """
     Convert the given c-instruction into its HACK machine language representation
     Return the resulting string of 1s and 0s (of length 16)
-    EX:
+    EX:  XXXXXXXXXXXXXXXXXX
     """
+    jump_bits = get_jump_bits(line)
+    dest_bits = get_dest_bits(line)
+    comp_bits = get_comp_bits(line)
+    return "111" + comp_bits + dest_bits + jump_bits
 
-    # strip ALL whitespace
 
-    # initialize string with 3 1s
-    print "yo"
+def get_jump_bits(line):
+    """
+    Takes a c-instruction line (looks like 'dest=comp;jump')
+    Returns a 3 character string consisting of the jump bits
+    """
+    split_for_jump = line.split(';')
+    if len(split_for_jump) != 2:
+        return "000"
+    jump_condition = split_for_jump[1]
+    return JUMP_MAP[jump_condition]
+
+
+def get_dest_bits(line):
+    """
+    Takes a c-instruction line (looks like 'dest=comp;jump')
+    Returns a 3 character string consisting of the dest bits
+    """
+    split_for_dest = line.split('=')
+    if len(split_for_dest) != 2:
+        return "000"
+    dest_condition = split_for_dest[0]
+    print line
+    return DEST_MAP[dest_condition]
+
+
+def get_comp_bits(line):
+    """
+    Takes a c-instruction line (looks like 'dest=comp;jump')
+    Returns the 6 character string consisting of the comp bits
+    """
+    line_without_jump_command = line.split(';')[0] # strip the optional ';jump' suffix
+    comp_command = line_without_jump_command.split('=')[-1] # strip the optional 'dest=' prefix
+    print comp_command
+    if 'M' in comp_command:
+        return '1' + COMP_MAP_WITH_M[comp_command]
+    return '0' + COMP_MAP_WITH_A[comp_command]
+
 
 def get_padded_bin_string(int_value):
     """ EX: if int_value = 8, we'll return "0000000000001000" """
@@ -135,10 +233,12 @@ def get_padded_bin_string(int_value):
 
     unpadded_bin_string = bin(int_value)[2:] # if number_str = "8", bin_string will be '1000'
     if len(unpadded_bin_string) > 15:
-        raise Exception("ERROR: can't have numbers with > 15 bits '{}' -> '{}'".format(int_value, unpadded_bin_string))
+        raise Exception("ERROR: can't have numbers with > 15 bits '{}' -> '{}'".format(
+            int_value, unpadded_bin_string))
     return unpadded_bin_string.zfill(16) # pad left with zeroes
 
 
+# not a contant since we're going to be appending to it
 def get_initial_symbol_table():
     return {
         'SP': 0,
@@ -165,6 +265,7 @@ def get_initial_symbol_table():
         'SCREEN': 16384,
         'KBD': 24576
     }
+
 
 if __name__ == "__main__":
     main()
