@@ -20,11 +20,11 @@ def main():
                 binary_a_instruction = convert_a_instruction(line)
                 converted_lines.append(binary_a_instruction)
             else:
-                binary_symbol_instruction = convert_symbol(line, symbol_table, str(next_address_to_allocate))
+                binary_symbol_instruction = convert_symbol(line, symbol_table, next_address_to_allocate)
                 converted_lines.append(binary_symbol_instruction)
                 next_address_to_allocate += 1
         else:
-            convert_c_instruction(line, symbol_table, str(next_address_to_allocate))
+            convert_c_instruction(line, symbol_table, next_address_to_allocate)
 
     print converted_lines
 
@@ -91,9 +91,9 @@ def convert_a_instruction(line):
     if line[0] != '@' or not number_str.isdigit():
         raise Exception("ERROR: a-instruction is in the wrong format '{}'".format(line))
 
-    return get_padded_bin_string(number_str)
+    return get_padded_bin_string(int(number_str))
 
-def convert_symbol(line, symbol_table, next_address_to_allocate_str):
+def convert_symbol(line, symbol_table, next_address_to_allocate):
     """
     Convert the given symbol line into a-instruction using the given symbol table
     EX: if input line = '@SCREEN', we'll return '0100000000000000'
@@ -103,20 +103,20 @@ def convert_symbol(line, symbol_table, next_address_to_allocate_str):
     if line[0] != '@' or symbol.isdigit():
         raise Exception("Symbol instruction is in the wrong format '{}'".format(line))
 
-    if not isinstance(next_address_to_allocate_str, str):
-        raise Exception("Addesses must be given as strings '{}'".format(next_address_to_allocate_str))
+    if not isinstance(next_address_to_allocate, int):
+        raise Exception("Addesses must be given as ints '{}'".format(next_address_to_allocate))
 
     symbol_int_value = None
     if symbol in symbol_table:
         symbol_int_value = symbol_table[symbol]
     else:
-        symbol_table[symbol] = next_address_to_allocate_str # the able stores strings!
-        symbol_int_value = next_address_to_allocate_str
+        symbol_table[symbol] = next_address_to_allocate
+        symbol_int_value = next_address_to_allocate
 
     return get_padded_bin_string(symbol_int_value)
 
 
-def convert_c_instruction(line, symbol_table, next_address_to_allocate_srt):
+def convert_c_instruction(line, symbol_table, next_address_to_allocate):
     """
     Convert the given c-instruction into its HACK machine language representation
     Return the resulting string of 1s and 0s (of length 16)
@@ -128,42 +128,42 @@ def convert_c_instruction(line, symbol_table, next_address_to_allocate_srt):
     # initialize string with 3 1s
     print "yo"
 
-def get_padded_bin_string(int_str):
-    """ EX: if number_str = "8", we'll return "0000000000001000" """
-    if not isinstance(int_str, str) or not int_str.isdigit():
-        raise Exception("Can only convert int strings to binary: {}".format(int_str))
+def get_padded_bin_string(int_value):
+    """ EX: if int_value = 8, we'll return "0000000000001000" """
+    if not isinstance(int_value, int):
+        raise Exception("Can only convert ints to binary: {}".format(int_value))
 
-    unpadded_bin_string = bin(int(int_str))[2:] # if number_str = "8", bin_string will be '1000'
+    unpadded_bin_string = bin(int_value)[2:] # if number_str = "8", bin_string will be '1000'
     if len(unpadded_bin_string) > 15:
-        raise Exception("ERROR: can't have numbers with > 15 bits '{}' -> '{}'".format(int_str, unpadded_bin_string))
+        raise Exception("ERROR: can't have numbers with > 15 bits '{}' -> '{}'".format(int_value, unpadded_bin_string))
     return unpadded_bin_string.zfill(16) # pad left with zeroes
 
 
 def get_initial_symbol_table():
     return {
-        'SP': '0',
-        'LCL': '1',
-        'ARG': '2',
-        'THIS': '3',
-        'THAT': '4',
-        'R0': '0',
-        'R1': '1',
-        'R2': '2',
-        'R3': '3',
-        'R4': '4',
-        'R5': '5',
-        'R6': '6',
-        'R7': '7',
-        'R8': '8',
-        'R9': '9',
-        'R10': '10',
-        'R11': '11',
-        'R12': '12',
-        'R13': '13',
-        'R14': '14',
-        'R15': '15',
-        'SCREEN': '16384',
-        'KBD': '24576'
+        'SP': 0,
+        'LCL': 1,
+        'ARG': 2,
+        'THIS': 3,
+        'THAT': 4,
+        'R0': 0,
+        'R1': 1,
+        'R2': 2,
+        'R3': 3,
+        'R4': 4,
+        'R5': 5,
+        'R6': 6,
+        'R7': 7,
+        'R8': 8,
+        'R9': 9,
+        'R10': 10,
+        'R11': 11,
+        'R12': 12,
+        'R13': 13,
+        'R14': 14,
+        'R15': 15,
+        'SCREEN': 16384,
+        'KBD': 24576
     }
 
 if __name__ == "__main__":
