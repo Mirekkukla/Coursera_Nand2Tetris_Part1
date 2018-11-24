@@ -272,6 +272,12 @@ def export_to_file(file_path_str, dest_folder_path_str, converted_lines):
     output_filename = input_filename[:-4] + ".hack" # change extension from .asm to .hack
     output_filepath = os.path.join(os.path.abspath(dest_folder_path_str), output_filename)
 
+    if os.path.exists(output_filepath):
+        response = raw_input("File at '{}' already exists, overwrite? (y/n): ".format(output_filepath))
+        if response.lower() != 'y':
+            print "You said '{}', quitting".format(response)
+            exit(0)
+
     print "Writing to {}".format(output_filepath)
     with open(output_filepath, 'w') as f:
         for line in converted_lines:
