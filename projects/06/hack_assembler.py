@@ -78,8 +78,9 @@ def main():
             if line[1:].isdigit():
                 binary_instruction = convert_a_instruction(line)
             else:
-                binary_instruction = convert_symbol(line, symbol_table, next_address_to_allocate)
-                next_address_to_allocate += 1
+                (binary_instruction, added_to_table) = convert_symbol(line, symbol_table, next_address_to_allocate)
+                if added_to_table:
+                    next_address_to_allocate += 1
         else:
             binary_instruction = convert_c_instruction(line)
 
@@ -187,9 +188,10 @@ def convert_a_instruction(line):
 def convert_symbol(line, symbol_table, next_address_to_allocate):
     """
     Convert the given symbol line into a-instruction using the given symbol table
-    EX: if input line = '@SCREEN', we'll return '0100000000000000'
+    Return a tuple of (converted_instruction, added_to_table), where the later is a boolean
+    that tells us whether or not we had to add the symbol to our symbol table
+    EX: if input line = '@SCREEN', we'll return ('0100000000000000', False)
     """
-
     symbol = line[1:]
     if line[0] != '@' or symbol.isdigit():
         raise Exception("Symbol instruction is in the wrong format '{}'".format(line))
@@ -197,14 +199,13 @@ def convert_symbol(line, symbol_table, next_address_to_allocate):
     if not isinstance(next_address_to_allocate, int):
         raise Exception("Addesses must be given as ints '{}'".format(next_address_to_allocate))
 
-    symbol_int_value = None
-    if symbol in symbol_table:
-        symbol_int_value = symbol_table[symbol]
-    else:
+    added_to_table = False
+    if symbol not in symbol_table:
         symbol_table[symbol] = next_address_to_allocate
-        symbol_int_value = next_address_to_allocate
+        added_to_table = True
 
-    return get_padded_bin_string(symbol_int_value)
+    converted_instruction = get_padded_bin_string(symbol_table[symbol])
+    return (converted_instruction, added_to_table)
 
 
 def convert_c_instruction(line):
