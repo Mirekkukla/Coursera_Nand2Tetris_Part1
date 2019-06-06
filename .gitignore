@@ -1,8 +1,8 @@
-# mac folder metadata
+##### MISC
 .DS_Store
-
-# assignments submissions
 *.zip
+
+###### NAND2TETRIS
 
 # some kind of binary metadata
 *.dat
@@ -12,3 +12,16 @@
 
 # assembled machine code files
 *.hack
+
+###### JAVA
+*.class
+
+# package files
+*.jar
+*.war
+*.ear
+
+# IntelliJ
+*/.idea/*
+*.idea
+*.iml
