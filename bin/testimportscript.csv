@@ -1,0 +1,50 @@
+owner,owner type,owned,owned type,ownership type,type,date,amount,units,cusip,cash account,accruals,comment
+bob2,person,stocko2,stock,share based,buy,12/2/2011,100,10,12345678,cash2,,2
+bob2,person,bondo3,bond,share based,buy,12/3/2011,10000,10,87654321,cash3,300,3
+bob2,person,HF4,generic asset,value based,contribution,12/4/2011,1000,,,cash4,,4
+bob2,person,HF5,generic asset,value based,dividend,12/5/2011,1000,,,cash5,,5
+bob2,person,stocko6,stock,share based,dividend (of cash),12/6/2011,1000,,,cash6,,6
+bob2,person,stocko7,stock,share based,income,12/7/2011,1000,,123456789,cash7,,7
+bob2,person,cash8,cash account,share based,deposit,12/8/2011,10,,,,,8
+someaccount10,online account,stocko10,stock,share based,buy,12/10/2011,100,10,12345678,cash10,,10
+someaccount11,online account,bondo11,bond,share based,buy,12/11/2011,10000,10,87654321,cash11,300,11
+someaccount12,online account,HF12,generic asset,value based,contribution,12/12/2011,1000,,,cash12,,12
+someaccount13,online account,HF13,generic asset,value based,dividend,12/13/2011,1000,,,cash13,,13
+someaccount14,online account,stocko14,stock,share based,dividend (of cash),12/14/2011,1000,,,cash14,,14
+someaccount15,online account,stocko15,stock,share based,income,12/15/2011,1000,,123456789,cash15,,15
+someaccount16,online account,cash16,cash account,share based,deposit,12/16/2011,10,,,,,16
+someaccount17,online account,cash17,cash account,share based,withdrawal,12/17/2011,10,,,,,17
+someaccount18,online account,cash18,cash account,share based,expense,12/18/2011,10,,,,,18
+someaccount19,online account,cash19,cash account,share based,income,12/19/2011,10,,,,,19
+someaccount20,online account,stocko20,stock,share based,interest income,12/20/2011,10,,,cash20,,20
+someaccount21,online account,bondo21,bond,share based,interest expense,12/21/2011,10,,,,,21
+someaccount22,online account,stocko22,stock,share based,transfer in,12/22/2011,,10,432155431,,,22
+someaccount23,online account,stocko23,stock,share based,transfer out,12/23/2011,,10,465789416,,,23
+someaccount24,online account,bondo24,bond,share based,sell,12/24/2011,100,10,985684132,,,24
+someaccount25,online account,cash25,cash account,share based,tax withholding,12/25/2011,1234,,,,,25
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
+,,,,,,,,,,,,
